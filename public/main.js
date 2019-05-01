@@ -33,7 +33,7 @@ function initMap(){
         for(var i = 0; i<obj.length; i++){
             infoWindow[i] = new google.maps.InfoWindow({
                 content: "This is " + obj[i].id});
-            console.log(infoWindow[i].content);
+            //console.log(infoWindow[i].content);
         }
     }
 

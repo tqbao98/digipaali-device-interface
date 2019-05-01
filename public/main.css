@@ -14,12 +14,17 @@
 #total-bale {
     text-align: center;
     font-size: 60px;
-    padding-top: 30%;
+    padding-top: 10%;
+}
+
+#exception {
+    text-align: center;
+    padding-top: 10%;
 }
 
 #data {
     margin: 0px;
-    height: 40%;
+    height: 45%;
 }
 
 p {

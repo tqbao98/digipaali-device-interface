@@ -9,7 +9,7 @@ var message = document.getElementById('message'),
       feedback = document.getElementById('feedback');
 
 btn.addEventListener("click", function(){
-    socket.emit("timestamp",data);
+    socket.emit("preservative",data);
     console.log(data + "world ");
 });
 

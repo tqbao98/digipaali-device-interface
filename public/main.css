@@ -1,20 +1,20 @@
+body {
+    box-sizing: border-box;
+}
+
 #map {
-    width: 50%;
-    float: left;
     height: 100%;
 }
 
 #info {
-    width: 50%;
-    float: right;
     height: 100%;
-    background-color: #F5F5F5; 
+    overflow-y: auto;
 }
 
 #total-bale {
     text-align: center;
-    font-size: 60px;
-    padding-top: 10%;
+    font-size: 30px;
+    padding-top: 5px;
 }
 
 #exception {
@@ -22,9 +22,9 @@
     padding-top: 10%;
 }
 
+
 #data {
-    margin: 0px;
-    height: 45%;
+    margin: 0px;  
 }
 
 p {
@@ -32,11 +32,39 @@ p {
     margin-bottom: 2%;
 }
 
-#bad-silage {
-    margin: 15px;
-    padding: 0px 70px;
+
+
+.body-wrapper {
+    height: 100vh;
 }
 
+.btn {
+    width: 100%;
+    margin: 10px 0 10px 0
+}
 
+.btn-container {
+    padding: 10px;
+}
 
-
+@media only screen and (max-width: 600px) {
+    #map {
+        height: 30%;
+    }
+    #total-bale {
+        text-align: center;
+        font-size: 22px;
+        padding-top: 5px;
+    }
+    #info {
+        height: 70%;
+    }
+    .btn {
+        width: 100%;
+        margin: 5px 0 5px 0
+    }
+    
+    .btn-container {
+        padding: 5px;
+    }
+  }

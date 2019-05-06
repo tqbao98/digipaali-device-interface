@@ -11,6 +11,9 @@ var Message = require('azure-iot-device').Message;
 var connectionString = "HostName=DigiBaleDeviceHuB.azure-devices.net;DeviceId=AapisMaitoDevice;SharedAccessKey=D198PHiL+d8bhH2yGfs+QMywl/tiJ39nSbboFE5OxDs=";
 var iotclient = clientFromConnectionString(connectionString);
 
+var totalBale = 0;
+var baleData;
+
 // App setup
 var app = express();
 var server = app.listen(5000, function(){
@@ -25,12 +28,23 @@ var io = socket(server);
 io.on('connection', (socket) => {
     console.log('made socket connection', socket.id);
 
-    // Handle chat event
+    // Handle events
     socket.on('preservative', function(data){
-        // console.log(data);
-        client.publish('error', '1');
+        exceptionHandler('preservative',data);
+    });
+    socket.on('badSilage', function(data){
+      exceptionHandler('badSilage',data);
+    });
+    socket.on('badWrap', function(data){
+      exceptionHandler('badWrap',data);
     });
 });
+
+function exceptionHandler(topic, data){
+  baleData.data.IsFaulty = true
+  baleData.data.timestamp = Date.now();
+  console.log(baleData);
+}
 
 client2.on('connect', function () {
   client2.subscribe('nurapisample/epc', function (err) {
@@ -95,8 +109,8 @@ client.on('connect', function () {
             context.arr.push(message.id);
             var msg = [];
             msg[0] = String(message.id);
-            msg[1] = context.timenow + "-" + message.id
-            console.log(msg);
+            let length = message.id.length;
+            msg[1] = "001" + context.timenow + message.id.substring(length-8 , length+1);
             client.publish('changeEPC1', msg.toString());}
             //console.log(msg);
             //sent = true;
@@ -149,7 +163,8 @@ client.on('connect', function () {
             context.arr.push(message.id);
             var msg = [];
             msg[0] = String(message.id);
-            msg[1] = context.timenow + "-" + message.id
+            msg[1] = "001" + context.timenow + message.id;
+            msg[1] = msg[1].substring(0,25);
             console.log(msg);}
             //client.publish('changeEPC1', msg.toString());}
             //console.log(msg);
@@ -165,14 +180,18 @@ client.on('connect', function () {
                 context = [];
                 break;
             }
-            var msg = {
+            baleData = {
                 deviceId: "AapisMaitoDevice",
                 key: "D198PHiL+d8bhH2yGfs+QMywl/tiJ39nSbboFE5OxDs=",
                 protocol: "mqtt",
                 data: {
-                    baleId : context.timenow + context.arr[0],
+                    baleId : "001" + context.timenow,
                     externalTemperature: String(message.temp1),
                     externalHumidity: String(message.humid1),
+                    internalTemperature: String(message.temp2),
+                    internalHumidity: String(message.humid2),
+                    //dryMatter:,
+                    //baleWeight: ,
                     dateTimeAdded: new Date(),
                     IsFaulty: false,
                     harvestedLongitude : String(message.long), 
@@ -183,8 +202,11 @@ client.on('connect', function () {
                     harvestIntervalTime : millisToMinutesAndSeconds(new Date() - context.timenow)
                 }
             };
-            iotclient.open(connectCallback);
-            console.log(msg);
+            //iotclient.open(connectCallback);
+            totalBale++;
+            baleData.data.totalBale = totalBale;
+            io.sockets.emit('device-data', baleData);
+            console.log(baleData);
             context = []
             //msg2 = null;
             //sent = true;
@@ -210,7 +232,6 @@ client.on('connect', function () {
       iotclient.sendEvent(msg, function (err) {
         if (err) console.log(err.toString());
       });
-   
       iotclient.on('message', function (msg) { 
         console.log(msg); 
         iotclient.complete(msg, function () {

@@ -13,30 +13,64 @@
 </head>
 
 <body>
-    <div id="container">
-            <div id="map" class="col s6 z-depth-2">
+    <div id="container" class="body-wrapper row">
+            <div id="map" class="col s12 m6">
                 <script async src="main.js"></script>
                 <script async defer
                     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAz4NaC2DRqzv7_H72_h8oQqaTmjHSUwx8&callback=initMap">
                 </script>    
             </div>
-            <div id="info" >
-                    <div id="total-bale" class="center-align"><span class="flow-text">You have made 251 bales!!</span></div>
+            <div id="info" class="col s12 m6">
+                    <div class="center-align" id="total-bale" class="flow-text">You have made ... bales!!</div>
                     <div class="container">
-                        <div id="data" class="card-panel teal z-depth-2 transparent">
-                                <p id="bale-id">Bale ID</p>
-                                <p id="field-temp">Field temperature</p>
-                                <p id="field-hum">Field humidity</p>
-                                <p id="cham-temp">Chamber temperature</p>
-                                <p id="cham-hum">Chamber humidity</p>
-                                <p id="dry-matter">Dry matter</p>
-                                <p id="weight">Weight</p>
+                        <div id="data" >
+                            <table class="striped">
+                                    <thead class=" blue-grey   lighten-2">
+                                            <tr>
+                                                <th>Measurement</th>
+                                                <th>Value</th>
+                                            </tr>
+                                          </thead>
+                                          <tbody id="table">
+                                                <tr>
+                                                  <td>Bale ID</td>
+                                                  <td><p id="baleid"></p></td>
+                                                </tr>
+                                                <tr>
+                                                  <td>Field temperature</td>
+                                                  <td><p id="outTemp"></p></td>
+                                                </tr>
+                                                <tr>
+                                                  <td>Field humidity</td>
+                                                  <td><p id="outHum"></p></td>
+                                                </tr>
+                                                <tr>
+                                                  <td>Chamber temperature</td>
+                                                  <td><p id="inTemp"></p></td>
+                                                </tr>
+                                                <tr>
+                                                  <td>Chamber humidity</td>
+                                                  <td><p id="inHum"></p></td>
+                                                </tr>     
+                                                <tr>
+                                                  <td>Dry matter</td>
+                                                  <td><p id="dryMatter"></p></td>
+                                                </tr>
+                                                <tr>
+                                                  <td>Weight</td>
+                                                  <td><p id="weight"></p></td>
+                                                </tr>
+                                              </tbody>
+                                    
+                                    
+                                    
+                                    
+                            </table>
                         </div>
-                        <div id="exception" class="center-align">
-                            
-                            <div class="col s12 m6"><button id="preservative" class="btn waves-effect"><i class="large material-icons">invert_colors_off</i></button></div> 
-                            <div class="col s12 m6"><button id="bad-silage" class="btn waves-effect"><i class="large material-icons">spa</i></button></div>
-                                <div class="col s12 m6"><button id="bad-wrap" class="btn waves-effect"><i class="large material-icons">panorama_wide_angle</i></button></div>
+                        <div id="exception" class="center-align row btn-container">
+                            <div class="col s12 m4"><button id="preservative" class="btn waves-effect blue-grey lighten-1"><i class="large material-icons">invert_colors_off</i></button></div> 
+                            <div class="col s12 m4"><button id="bad-silage" class="btn waves-effect blue-grey lighten-1"><i class="large material-icons">spa</i></button></div>
+                            <div class="col s12 m4"><button id="bad-wrap" class="btn waves-effect blue-grey lighten-1"><i class="large material-icons">panorama_wide_angle</i></button></div>
                                 
                         </div>
                     </div>

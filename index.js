@@ -1,6 +1,7 @@
 var express = require('express');
 var socket = require('socket.io');
-var mqtt = require('mqtt')
+var mqtt = require('mqtt');
+var fs = require('fs');
 var client  = mqtt.connect('http://192.168.0.110:1883');
 var client2 = mqtt.connect('http://192.168.0.156:1883');
 var context = new Object();
@@ -44,6 +45,7 @@ function exceptionHandler(topic, data){
   baleData.data.IsFaulty = true
   baleData.data.timestamp = Date.now();
   console.log(baleData);
+  client.publish('device-data', JSON.stringify(baleData));
 }
 
 client2.on('connect', function () {
@@ -75,13 +77,6 @@ client.on('connect', function () {
 
     //update location and time
     client.subscribe('outTopic3', function (err) {
-      if (err) {
-        console.log(err);
-      }
-    });
-
-    //to get newest bale data, will be deleted after nodered moving is finished
-    client.subscribe('device-interface', function (err) {
       if (err) {
         console.log(err);
       }
@@ -132,18 +127,30 @@ client.on('connect', function () {
             break;
       
       case 'outTopic3':
-          if(context.timenow){
-            if(!context.arr2){context.arr2 = [];}
-            context.arr2.push({
-                Latitude : message.lat,
-                Longitude : message.long,
-                DateTimeCreated: new Date(),
-                IsDeleted : false
-            });
-            //msg2 = null;
-            //sent = false;
-            console.log(context);
-          }  
+            if(context.timenow){
+              if(!context.arr2){context.arr2 = [];}
+              context.arr2.push({
+                 Latitude : message.lat,
+                 Longitude : message.long,
+                 DateTimeCreated: new Date(),
+                 IsDeleted : false
+              });
+              //msg2 = null;
+              //sent = false;
+              console.log(context);
+            }
+            io.sockets.emit('locationPath', message);
+            var tractorData = {
+                deviceId: "AapisMaitoDevice",
+                key: "D198PHiL+d8bhH2yGfs+QMywl/tiJ39nSbboFE5OxDs=",
+                protocol: "mqtt",
+                data: {
+                  dateTimeAdded : new Date(),
+                  tractorLon: message.long,
+                  tractorLat: message.lat
+                }
+            }
+            client.publish('tractor-data', JSON.stringify(tractorData));
             break;
       
       case 'nurapisample/epc':
@@ -211,6 +218,11 @@ client.on('connect', function () {
             //msg2 = null;
             //sent = true;
             //where = false;
+            client.publish('device-data', JSON.stringify(baleData));
+            /*fs.appendFile('mynewfile1.txt', ' This is my text.', function (err) {
+              if (err) throw err;
+              console.log('Updated!');
+            });*/
             client.publish('trigger', '1');
             break;
             

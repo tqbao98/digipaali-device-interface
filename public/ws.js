@@ -1,6 +1,8 @@
 // Make connection
 var socket = io.connect('http://localhost:5000');
 var data = "hello";
+//import {addMarker} from './main.js';
+
 // Query DOM
 var message = document.getElementById('message'),
 
@@ -43,5 +45,7 @@ socket.on("device-data", function(data){
     //weight.innerHTML = data.data.weight;
     totalBale.innerHTML = "You have made " + data.data.totalBale + " bales today!";
 });
+
+
 
 

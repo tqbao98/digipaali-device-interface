@@ -42,9 +42,26 @@ function initMap(){
         //console.log(obj.length);
         markers[i] = new google.maps.Marker({
             position: {lat: obj[i].CurrentLocation.Latitude, lng: obj[i].CurrentLocation.Longitude},
-            map: map
+            map: map,
+            label: 'P'
             });
         }
     }
+
+    // Display tractor's location
+    var pinColor = "4fc3f7";
+    var pinImage = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" + pinColor,
+        new google.maps.Size(21, 34),
+        new google.maps.Point(0,0),
+        new google.maps.Point(10, 34));
+    var socket = io.connect('http://localhost:5000');
+    socket.on("locationPath", function(data){
+        var path = new google.maps.Marker({
+            position: {lat: data.lat, lng: data.long},
+            map: map,
+            animation: google.maps.Animation.DROP,
+            icon: pinImage
+            });
+    });
     
 }

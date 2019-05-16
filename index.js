@@ -31,7 +31,7 @@ io.on('connection', (socket) => {
 
     // Handle events
     socket.on('preservative', function(data){
-        exceptionHandler('preservative',data);
+      exceptionHandler('preservative',data);
     });
     socket.on('badSilage', function(data){
       exceptionHandler('badSilage',data);
@@ -42,10 +42,13 @@ io.on('connection', (socket) => {
 });
 
 function exceptionHandler(topic, data){
-  baleData.data.IsFaulty = true
-  baleData.data.timestamp = Date.now();
-  console.log(baleData);
-  client.publish('device-data', JSON.stringify(baleData));
+  if (baleData != null){
+    baleData.data.IsFaulty = true
+    baleData.data.timestamp = Date.now();
+    console.log(baleData);
+    client.publish('device-data', JSON.stringify(baleData));
+  }
+  io.sockets.emit('updated-alert', topic);
 }
 
 client2.on('connect', function () {
@@ -122,6 +125,7 @@ client.on('connect', function () {
             context = new Object();
             timenow = new Date();
             context.timenow = String(timenow.getTime());
+            console.log(timenow);
             //msg2 = null;
             //sent = false;
             break;

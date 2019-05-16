@@ -1,4 +1,5 @@
 // Make connection
+//var socket = io.connect('http://192.168.0.110:5000');
 var socket = io.connect('http://localhost:5000');
 var data = "hello";
 //import {addMarker} from './main.js';
@@ -44,6 +45,10 @@ socket.on("device-data", function(data){
     //dryMatter.innerHTML = data.data.dryMatter;
     //weight.innerHTML = data.data.weight;
     totalBale.innerHTML = "You have made " + data.data.totalBale + " bales today!";
+});
+
+socket.on('updated-alert', function(data){
+    //alert('Bale was marked as '+ data);
 });
 
 

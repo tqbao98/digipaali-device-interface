@@ -10,6 +10,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.2/css/materialize.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.js" type="text/javascript"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.js"></script>
+    <link rel="manifest" href="manifest.json"></link>
+    <meta name="theme-color" content="#78909C">
+    <!-- iOS support -->
+    <link rel="apple-touch-icon" href="/icons/icon-96x96.png">
+    <meta name="apple-mobile-web-app-status-bar" content="#aa7700">
+    <meta name="theme-color" content="#FFE1C4">
 </head>
 
 <body>
@@ -25,7 +31,7 @@
                     <div class="container">
                         <div id="data" >
                             <table class="striped">
-                                    <thead class=" blue-grey   lighten-2">
+                                    <thead class="blue-grey lighten-2">
                                             <tr>
                                                 <th>Measurement</th>
                                                 <th>Value</th>
@@ -77,6 +83,7 @@
     <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.2/js/materialize.min.js"></script>
     <script> $(".button-collapse").sideNav(); </script>
+    <script async src="/js/app.js"></script>
     <script async src="ws.js"></script>
 
 </body>

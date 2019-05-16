@@ -33,7 +33,7 @@ function initMap(){
         for(var i = 0; i<obj.length; i++){
             infoWindow[i] = new google.maps.InfoWindow({
                 content: "This is " + obj[i].id});
-            //console.log(infoWindow[i].content);
+            //console.log(obj[i]);
         }
     }
 
@@ -54,6 +54,7 @@ function initMap(){
         new google.maps.Size(21, 34),
         new google.maps.Point(0,0),
         new google.maps.Point(10, 34));
+    //var socket = io.connect('http://192.168.0.110:5000');
     var socket = io.connect('http://localhost:5000');
     socket.on("locationPath", function(data){
         var path = new google.maps.Marker({
@@ -62,6 +63,9 @@ function initMap(){
             animation: google.maps.Animation.DROP,
             icon: pinImage
             });
+        //map.setCenter({lat: 60.26421, lng: 23.03122});
+        //map.setZoom(16);
+        
     });
     
 }

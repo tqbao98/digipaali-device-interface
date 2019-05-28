@@ -42,8 +42,15 @@ io.on('connection', (socket) => {
 });
 
 function exceptionHandler(topic, data){
+  var errorCode;
   if (baleData != null){
-    baleData.data.IsFaulty = true
+    switch(topic){
+      case 'preservative': errorCode = 101; break;
+      case 'badSilage': errorCode = 102; break;
+      case 'badWrap': errorCode = 103; break;
+      default: errorCode = 100; break;
+    }
+    baleData.data.IsFaulty = errorCode;
     baleData.data.timestamp = Date.now();
     console.log(baleData);
     client.publish('device-data', JSON.stringify(baleData));
@@ -197,14 +204,14 @@ client.on('connect', function () {
                 protocol: "mqtt",
                 data: {
                     baleId : "001" + context.timenow,
-                    externalTemperature: String(message.temp1),
-                    externalHumidity: String(message.humid1),
-                    internalTemperature: String(message.temp2),
-                    internalHumidity: String(message.humid2),
-                    //dryMatter:,
+                    externalTemperature: String(message.temp1.toFixed(2)),
+                    externalHumidity: String(message.humid1.toFixed(2)),
+                    internalTemperature: String(message.temp2.toFixed(2)),
+                    internalHumidity: String(message.humid2.toFixed(2)),
+                    dryMatter:String(message.dryMatter.toFixed(2)),
                     //baleWeight: ,
                     dateTimeAdded: new Date(),
-                    IsFaulty: false,
+                    IsFaulty: 400,
                     harvestedLongitude : String(message.long), 
                     harvestedLatitude: String(message.lat),
                     harvestedLocations : context.arr2,

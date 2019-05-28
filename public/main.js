@@ -63,8 +63,8 @@ function initMap(){
             animation: google.maps.Animation.DROP,
             icon: pinImage
             });
-        //map.setCenter({lat: 60.26421, lng: 23.03122});
-        //map.setZoom(16);
+        map.setCenter({lat: data.lat, lng: data.long});
+        map.setZoom(16);
         
     });
     

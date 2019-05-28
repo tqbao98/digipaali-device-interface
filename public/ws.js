@@ -38,11 +38,11 @@ badWrap.addEventListener("click", function(){
 // Listen for data from server
 socket.on("device-data", function(data){
     baleid.innerHTML = data.data.baleId;
-    outTemp.innerHTML = data.data.externalTemperature;
-    outHum.innerHTML = data.data.externalHumidity;
-    inTemp.innerHTML = data.data.internalTemperature;
-    inHum.innerHTML = data.data.internalHumidity;
-    //dryMatter.innerHTML = data.data.dryMatter;
+    outTemp.innerHTML = data.data.externalTemperature + "°C";
+    outHum.innerHTML = data.data.externalHumidity + "%";
+    inTemp.innerHTML = data.data.internalTemperature + "°C";
+    inHum.innerHTML = data.data.internalHumidity + "%";
+    dryMatter.innerHTML = data.data.dryMatter + "%";
     //weight.innerHTML = data.data.weight;
     totalBale.innerHTML = "You have made " + data.data.totalBale + " bales today!";
 });

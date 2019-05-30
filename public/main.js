@@ -54,8 +54,8 @@ function initMap(){
         new google.maps.Size(21, 34),
         new google.maps.Point(0,0),
         new google.maps.Point(10, 34));
-    //var socket = io.connect('http://192.168.0.110:5000');
-    var socket = io.connect('http://localhost:5000');
+    var socket = io.connect('http://192.168.0.110:5000');
+    //var socket = io.connect('http://localhost:5000');
     socket.on("locationPath", function(data){
         var path = new google.maps.Marker({
             position: {lat: data.lat, lng: data.long},

@@ -62,7 +62,7 @@ client2.on('connect', function () {
   client2.subscribe('nurapisample/epc', function (err) {
     if (err) {
       console.log(err);
-    }
+    } 
   });
 });
 
@@ -230,10 +230,10 @@ client.on('connect', function () {
             //sent = true;
             //where = false;
             client.publish('device-data', JSON.stringify(baleData));
-            /*fs.appendFile('mynewfile1.txt', ' This is my text.', function (err) {
+            fs.appendFile('data.txt', JSON.stringify(baleData), function (err) {
               if (err) throw err;
               console.log('Updated!');
-            });*/
+            });
             client.publish('trigger', '1');
             break;
             

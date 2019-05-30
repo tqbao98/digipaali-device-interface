@@ -1,8 +1,7 @@
 // Make connection
-//var socket = io.connect('http://192.168.0.110:5000');
-var socket = io.connect('http://localhost:5000');
+var socket = io.connect('http://192.168.0.110:5000');
+//var socket = io.connect('http://localhost:5000');
 var data = "hello";
-//import {addMarker} from './main.js';
 
 // Query DOM
 var message = document.getElementById('message'),
@@ -21,6 +20,7 @@ var message = document.getElementById('message'),
       dryMatter = document.getElementById('dryMatter');
       weight = document.getElementById('weight');
       totalBale = document.getElementById('total-bale');
+     // dot = document.getElementById('dot1');
 
 // Emit exception bale data
 preservative.addEventListener("click", function(){
@@ -49,6 +49,12 @@ socket.on("device-data", function(data){
 
 socket.on('updated-alert', function(data){
     //alert('Bale was marked as '+ data);
+});
+
+socket.on('reader-ready', function(data){
+    //alert('Bale was marked as '+ data);
+    console.log("ready");
+    dot.style.backgroundColor = "green";
 });
 
 

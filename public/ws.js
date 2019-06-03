@@ -20,7 +20,18 @@ var message = document.getElementById('message'),
       dryMatter = document.getElementById('dryMatter');
       weight = document.getElementById('weight');
       totalBale = document.getElementById('total-bale');
+      add = document.getElementById('add');
+      upload = document.getElementById('upload');
      // dot = document.getElementById('dot1');
+
+// Emit triggers
+add.addEventListener('click', function(){
+    socket.emit("add", data);
+});
+
+upload.addEventListener('click',function(){
+    socket.emit("upload", data);
+});
 
 // Emit exception bale data
 preservative.addEventListener("click", function(){
@@ -47,8 +58,9 @@ socket.on("device-data", function(data){
     totalBale.innerHTML = "You have made " + data.data.totalBale + " bales today!";
 });
 
-socket.on('updated-alert', function(data){
-    //alert('Bale was marked as '+ data);
+socket.on('noti', function(data){
+    snackbar(data);
+    console.log(data);
 });
 
 socket.on('reader-ready', function(data){
@@ -56,6 +68,17 @@ socket.on('reader-ready', function(data){
     console.log("ready");
     dot.style.backgroundColor = "green";
 });
+
+function snackbar(data) {
+    // Get the snackbar DIV
+    var snackbar = document.getElementById("snackbar");
+    snackbar.innerHTML = data;
+    // Add the "show" class to DIV
+    snackbar.className = "show";
+  
+    // After 3 seconds, remove the show class from DIV
+    setTimeout(function(){ snackbar.className = snackbar.className.replace("show", ""); }, 3000);
+  }
 
 
 

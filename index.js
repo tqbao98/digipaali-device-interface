@@ -39,6 +39,12 @@ io.on('connection', (socket) => {
     socket.on('badWrap', function(data){
       exceptionHandler('badWrap',data);
     });
+    socket.on('add', function(data){
+      client.publish("trigger", "1");
+    });
+    socket.on('upload', function(data){
+      client.publish("sensors", "1");
+    });
 });
 
 function exceptionHandler(topic, data){
@@ -55,7 +61,7 @@ function exceptionHandler(topic, data){
     console.log(baleData);
     client.publish('device-data', JSON.stringify(baleData));
   }
-  io.sockets.emit('updated-alert', topic);
+  io.sockets.emit('noti', "Bale marked");
 }
 
 client2.on('connect', function () {
@@ -116,7 +122,8 @@ client.on('connect', function () {
             msg[0] = String(message.id);
             let length = message.id.length;
             msg[1] = "001" + context.timenow + message.id.substring(length-8 , length+1);
-            client.publish('changeEPC1', msg.toString());}
+            client.publish('changeEPC1', msg.toString());
+            io.sockets.emit('noti', "New tag found");}
             //console.log(msg);
             //sent = true;
             //where = true;
@@ -135,6 +142,7 @@ client.on('connect', function () {
             console.log(timenow);
             //msg2 = null;
             //sent = false;
+            io.sockets.emit('noti', "New bale stamping started");
             break;
       
       case 'outTopic3':
@@ -224,8 +232,9 @@ client.on('connect', function () {
             totalBale++;
             baleData.data.totalBale = totalBale;
             io.sockets.emit('device-data', baleData);
+            io.sockets.emit('noti', "Uploaded");
             console.log(baleData);
-            context = []
+            context = {};
             //msg2 = null;
             //sent = true;
             //where = false;

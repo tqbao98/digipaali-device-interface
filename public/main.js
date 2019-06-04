@@ -1,7 +1,7 @@
 function initMap(){
     var homeLocation= {lat: 61.26421, lng: 24.03122};
-    var farm = "farm2";
-    var url = 'http://digibaleapi.azurewebsites.net/DigiBaleOpenApi/1/bale/findAllByFarmId?farmId=' + farm + '&fetchAll=true';
+    //var farm = "farm2";
+    var url = 'https://digibaleapi.azurewebsites.net/DigiBaleOpenApi/1/farm/GetFarmBales/Marttila?fetchall=true'; //+ farm + '&fetchAll=true';
     var options = {
         zoom: 7,
         center: homeLocation};
@@ -15,7 +15,9 @@ function initMap(){
         content: 'dalla dalla dalla'});
 
     const Http = new XMLHttpRequest();
-    Http.open("GET", url);
+    Http.open("GET", url,true);
+    /*Http.withCredentials = true;
+    Http.setRequestHeader('Content-Type', 'application/json');*/
     Http.send();
     Http.onreadystatechange=(e)=>{
         var data= JSON.parse(Http.responseText);
@@ -67,5 +69,6 @@ function initMap(){
         map.setZoom(16);
         
     });
+    
     
 }

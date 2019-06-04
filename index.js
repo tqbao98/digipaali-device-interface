@@ -56,7 +56,8 @@ function exceptionHandler(topic, data){
       case 'badWrap': errorCode = 103; break;
       default: errorCode = 100; break;
     }
-    baleData.data.IsFaulty = errorCode;
+    baleData.data.IsFaulty = true;
+    baleData.data.FaultyCode = String(errorCode);
     baleData.data.timestamp = Date.now();
     console.log(baleData);
     client.publish('device-data', JSON.stringify(baleData));
@@ -217,24 +218,19 @@ client.on('connect', function () {
                     internalTemperature: String(message.temp2.toFixed(2)),
                     internalHumidity: String(message.humid2.toFixed(2)),
                     dryMatter:String(message.dryMatter.toFixed(2)),
+                    FaultyCode: "100",
                     //baleWeight: ,
                     dateTimeAdded: new Date(),
-                    IsFaulty: 400,
-                    harvestedLongitude : String(message.long), 
-                    harvestedLatitude: String(message.lat),
+                    IsFaulty: false,
+                    harvestedLongitude : message.long, 
+                    harvestedLatitude: message.lat,
                     harvestedLocations : context.arr2,
                     timestamp: Date.now(),
                     //baler: global.get("worker"),
-                    harvestIntervalTime : millisToMinutesAndSeconds(new Date() - context.timenow)
+                    harvestIntervalTime : parseFloat(millisToMinutesAndSeconds(new Date() - context.timenow))
                 }
             };
             //iotclient.open(connectCallback);
-            totalBale++;
-            baleData.data.totalBale = totalBale;
-            io.sockets.emit('device-data', baleData);
-            io.sockets.emit('noti', "Uploaded");
-            console.log(baleData);
-            context = {};
             //msg2 = null;
             //sent = true;
             //where = false;
@@ -243,6 +239,12 @@ client.on('connect', function () {
               if (err) throw err;
               console.log('Updated!');
             });
+            totalBale++;
+            baleData.data.totalBale = totalBale;
+            io.sockets.emit('device-data', baleData);
+            io.sockets.emit('noti', "Uploaded");
+            console.log(baleData);
+            context = {};
             client.publish('trigger', '1');
             break;
             
@@ -252,7 +254,7 @@ client.on('connect', function () {
   function millisToMinutesAndSeconds(millis) {
     var minutes = Math.floor(millis / 60000);
     var seconds = ((millis % 60000) / 1000).toFixed(0);
-    return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
+    return minutes + "." + (seconds < 10 ? '0' : '') + seconds;
   }
 
   var connectCallback = function (err) {

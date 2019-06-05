@@ -1,7 +1,7 @@
 function initMap(){
     var homeLocation= {lat: 61.26421, lng: 24.03122};
-    //var farm = "farm2";
-    var url = 'https://digibaleapi.azurewebsites.net/DigiBaleOpenApi/1/farm/GetFarmBales/Marttila?fetchall=true'; //+ farm + '&fetchAll=true';
+    var farm = "Marttila";
+    var url = 'https://digibaleapi.azurewebsites.net/DigiBaleOpenApi/1/farm/GetFarmBales/' + farm + '?fetchAll=true';
     var options = {
         zoom: 7,
         center: homeLocation};

@@ -14,7 +14,7 @@ var iotclient = clientFromConnectionString(connectionString);
 
 var totalBale = 0;
 var baleData;
-
+var count = 0;
 // App setup
 var app = express();
 var server = app.listen(5000, function(){
@@ -22,7 +22,7 @@ var server = app.listen(5000, function(){
 });
 
 // Static files
-app.use(express.static('public'));
+app.use(express.static('/home/pi/digipaali-device-interface/public'));
 
 // Socket setup & pass server
 var io = socket(server);
@@ -105,7 +105,6 @@ client.on('connect', function () {
     message = JSON.parse(message.toString());
     switch(topic){
       case 'nurapisample/epc':
-            //console.log(message);
             if (!context.timenow){
               //msg2 = null;
               //sent = false;
@@ -118,13 +117,15 @@ client.on('connect', function () {
                 } else {flag = false;}
             }
             if (!flag){
-            context.arr.push(message.id);
-            var msg = [];
-            msg[0] = String(message.id);
-            let length = message.id.length;
-            msg[1] = "001" + context.timenow + message.id.substring(length-8 , length+1);
-            client.publish('changeEPC1', msg.toString());
-            io.sockets.emit('noti', "New tag found");}
+              context.arr.push(message.id);
+              var msg = [];
+              msg[0] = String(message.id);
+              let length = message.id.length;
+              msg[1] = "001" + context.timenow + message.id.substring(length-8 , length+1);
+              context.arr.push(msg[1]);
+              client2.publish('changeEPC', JSON.stringify(msg));
+              io.sockets.emit('noti', "New tag found");
+            } 
             //console.log(msg);
             //sent = true;
             //where = true;
@@ -244,8 +245,9 @@ client.on('connect', function () {
             io.sockets.emit('device-data', baleData);
             io.sockets.emit('noti', "Uploaded");
             console.log(baleData);
-            context = {};
+            context = null;
             client.publish('trigger', '1');
+            console.log(context);
             break;
             
     }

@@ -5,6 +5,11 @@
     "display": "standalone",
     "background_color": "#90a4ae",
     "theme_color": "#78909c",
+    "permissions": [
+        "https://*/",
+        "https://www.google.com/",
+        "https://digibaleapi.azurewebsites.net/DigiBaleOpenApi/1/farm/GetFarmBales/Marttila?fetchAll=true"
+      ],
     "icons": [
         {
             "src": "/img/icons/icon-72x72.png",

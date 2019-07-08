@@ -48,7 +48,7 @@ badWrap.addEventListener("click", function(){
 
 // Listen for data from server
 socket.on("device-data", function(data){
-    baleid.innerHTML = data.data.baleId;
+    baleid.innerHTML = data.data.baleId[0];
     outTemp.innerHTML = data.data.externalTemperature + "°C";
     outHum.innerHTML = data.data.externalHumidity + "%";
     inTemp.innerHTML = data.data.internalTemperature + "°C";

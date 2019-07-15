@@ -27,7 +27,7 @@ var server = app.listen(5000, function(){
 });
 
 // Static files
-app.use(express.static('home/pi/digipaali-device-interface/public')); // change to home/pi/digipaali-device-interface/public
+app.use(express.static('/home/pi/digipaali-device-interface/public')); // change to home/pi/digipaali-device-interface/public
 
 // Socket setup & pass server
 var io = socket(server);
@@ -61,8 +61,10 @@ function exceptionHandler(topic, data){
       case 'badWrap': errorCode = 103; break;
       default: errorCode = 100; break;
     }
+    if (!context.errorCode) {context.errorCode = new Array();}
+    context.errorCode.push(errorCode); 
     baleData.data.IsFaulty = true;
-    baleData.data.FaultyCode = String(errorCode);
+    baleData.data.FaultyCode = context.errorCode;
     baleData.data.timestamp = Date.now();
     console.log(baleData);
     client.publish('device-data', JSON.stringify(baleData));
@@ -99,6 +101,20 @@ client.on('connect', function () {
 
     //update location and time
     client.subscribe('outTopic3', function (err) {
+      if (err) {
+        console.log(err);
+      }
+    });
+
+    //update location and time
+    client.subscribe('dry-matter', function (err) {
+      if (err) {
+        console.log(err);
+      }
+    });
+
+    //update location and time
+    client.subscribe('weight', function (err) {
       if (err) {
         console.log(err);
       }
@@ -165,15 +181,22 @@ client.on('connect', function () {
             }
             if (!flag){
               context.arr.push(message.id);
-              /*var msg = [];
+              var msg = [];
               msg[0] = String(message.id);
               let length = message.id.length;
               msg[1] = "001" + context.timenow + message.id.substring(length-8 , length+1);
-              context.arr.push(msg[1]);
-              client2.publish('changeEPC', JSON.stringify(msg));*/
+              //context.arr.push(msg[1]);
+              client.publish('changeEPC', JSON.stringify(msg));
               io.sockets.emit('noti', "New tag found");
             }
-            break;      
+            break;
+            
+      case 'dry-matter':
+            if(context.timenow){
+              context.dryMatter = message.dryMatter;
+            }
+            break;
+            //if correct, then make another case for Weight
 
       case 'outTopic3':
             if(context.timenow){
@@ -188,8 +211,8 @@ client.on('connect', function () {
             }
             io.sockets.emit('locationPath', message);
             var tractorData = {
-                deviceId: "AapisMaitoDevice",
-                key: "D198PHiL+d8bhH2yGfs+QMywl/tiJ39nSbboFE5OxDs=",
+                deviceId: "LittleBoy",
+                key: "eBmI9Cq1RbV3ISEeuJAUk+OtmimSj4fBdGyViSRkYJM=",
                 protocol: "mqtt",
                 data: {
                   dateTimeAdded : new Date(),
@@ -206,8 +229,8 @@ client.on('connect', function () {
                 break;
             }
             baleData = {
-                deviceId: "AapisMaitoDevice",
-                key: "D198PHiL+d8bhH2yGfs+QMywl/tiJ39nSbboFE5OxDs=",
+                deviceId: "LittleBoy",
+                key: "eBmI9Cq1RbV3ISEeuJAUk+OtmimSj4fBdGyViSRkYJM=",
                 protocol: "mqtt",
                 data: {
                     baleId : context.arr,
@@ -216,7 +239,7 @@ client.on('connect', function () {
                     internalTemperature: String(message.temp2.toFixed(2)),
                     internalHumidity: String(message.humid2.toFixed(2)),
                     dryMatterValue:String(message.dryMatter.toFixed(2)),
-                    FaultyCode: 100,
+                    FaultyCode: [100],
                     //baleWeight: ,
                     dateTimeAdded: new Date(),
                     IsFaulty: false,
@@ -229,12 +252,12 @@ client.on('connect', function () {
             };
             //iotclient.open(connectCallback);
             client.publish('device-data', JSON.stringify(baleData));
-            fs.appendFile('data.txt', JSON.stringify(baleData), function (err) {
+            /*fs.appendFile('data.txt', JSON.stringify(baleData), function (err) {
               if (err) throw err;
               console.log('Updated!');
-            });
+            });*/
             totalBale++;
-            baleData.data.totalBale = totalBale;
+            //baleData.data.totalBale = totalBale;
             io.sockets.emit('device-data', baleData);
             io.sockets.emit('noti', "Uploaded");
             console.log(baleData);

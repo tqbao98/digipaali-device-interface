@@ -1,5 +1,5 @@
 // Make connection
-var socket = io.connect('http://192.168.0.110:5000');
+var socket = io.connect('http://localhost:5000');
 //var socket = io.connect('http://localhost:5000');
 var data = "hello";
 
@@ -53,8 +53,8 @@ socket.on("device-data", function(data){
     outHum.innerHTML = data.data.externalHumidity + "%";
     inTemp.innerHTML = data.data.internalTemperature + "°C";
     inHum.innerHTML = data.data.internalHumidity + "%";
-    dryMatter.innerHTML = data.data.dryMatter + "%";
-    //weight.innerHTML = data.data.weight;
+    dryMatter.innerHTML = data.data.dryMatterValue + "%";
+    weight.innerHTML = data.data.baleWeight;
     totalBale.innerHTML = "You have made " + data.data.totalBale + " bales today!";
 });
 

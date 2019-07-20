@@ -27,7 +27,7 @@ var server = app.listen(5000, function(){
 });
 
 // Static files
-app.use(express.static('/home/pi/digipaali-device-interface/public')); // change to home/pi/digipaali-device-interface/public
+app.use(express.static('/home/pi/digipaali-device-interface/public')); // change to /home/pi/digipaali-device-interface/public
 
 // Socket setup & pass server
 var io = socket(server);
@@ -211,8 +211,8 @@ client.on('connect', function () {
             }
             io.sockets.emit('locationPath', message);
             var tractorData = {
-                deviceId: "LittleBoy",
-                key: "eBmI9Cq1RbV3ISEeuJAUk+OtmimSj4fBdGyViSRkYJM=",
+                deviceId: "LastBorn",
+                key: "JGUrI7BlNQayBL8I/kxWY3xlUbEp6icGKqmVWyT/E9U=",
                 protocol: "mqtt",
                 data: {
                   dateTimeAdded : new Date(),
@@ -229,8 +229,8 @@ client.on('connect', function () {
                 break;
             }
             baleData = {
-                deviceId: "LittleBoy",
-                key: "eBmI9Cq1RbV3ISEeuJAUk+OtmimSj4fBdGyViSRkYJM=",
+                deviceId: "LastBorn",
+                key: "JGUrI7BlNQayBL8I/kxWY3xlUbEp6icGKqmVWyT/E9U=",
                 protocol: "mqtt",
                 data: {
                     baleId : context.arr,

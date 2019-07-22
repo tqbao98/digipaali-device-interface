@@ -228,6 +228,9 @@ client.on('connect', function () {
                 context = [];
                 break;
             }
+            let volume = 12*12*3.14159265359*5;
+            let weight = volume*(message.dryMatter.toFixed(2)*997+((3.5*(100-message.dryMatter.toFixed(2)))+90));
+            let DMWeight = volume*((3.5*(100-message.dryMatter.toFixed(2)))+90);
             baleData = {
                 deviceId: "LastBorn",
                 key: "JGUrI7BlNQayBL8I/kxWY3xlUbEp6icGKqmVWyT/E9U=",
@@ -238,9 +241,10 @@ client.on('connect', function () {
                     externalHumidity: String(message.humid1.toFixed(2)),
                     internalTemperature: String(message.temp2.toFixed(2)),
                     internalHumidity: String(message.humid2.toFixed(2)),
-                    dryMatterValue:String(message.dryMatter.toFixed(2)),
+                    dryMatterValue:String(100-message.dryMatter.toFixed(2)),
                     FaultyCode: [100],
-                    //baleWeight: ,
+                    baleWeight: String(weight.toFixed(2)),
+                    //DMWeight: String(DMWeight.toFixed(2)),
                     dateTimeAdded: new Date(),
                     IsFaulty: false,
                     harvestedLongitude : message.long, 

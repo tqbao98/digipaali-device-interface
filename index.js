@@ -3,7 +3,7 @@ var socket = require('socket.io');
 var mqtt = require('mqtt');
 var fs = require('fs');
 var client  = mqtt.connect('http://192.168.0.110:1883');
-var client2 = mqtt.connect('http://192.168.0.156:1883');
+//var client2 = mqtt.connect('http://192.168.0.156:1883');
 var context = new Object();
 
 // to start system automatically
@@ -11,15 +11,15 @@ timenow = new Date();
 context.timenow = String(timenow.getTime());
 
 // create iothub device instance
-var clientFromConnectionString = require('azure-iot-device-mqtt').clientFromConnectionString;
-var Message = require('azure-iot-device').Message;
-var connectionString = "HostName=DigiBaleDeviceHuB.azure-devices.net;DeviceId=AapisMaitoDevice;SharedAccessKey=D198PHiL+d8bhH2yGfs+QMywl/tiJ39nSbboFE5OxDs=";
-var iotclient = clientFromConnectionString(connectionString);
-
+var connectionString = "HostName=DigiBaleDeviceHuB.azure-devices.net;DeviceId=LittleBoy;SharedAccessKey=eBmI9Cq1RbV3ISEeuJAUk+OtmimSj4fBdGyViSRkYJM=";
+var Mqtt = require('azure-iot-device-mqtt').Mqtt;
+var DeviceClient = require('azure-iot-device').Client
+var AzureMessage = require('azure-iot-device').Message;
+var azureclient = DeviceClient.fromConnectionString(connectionString, Mqtt);
 
 var totalBale = 0; // total bale made in a day, reseted when prj reloaded
 var baleData; // obj to store data before send to server
-var count = 0;
+
 // App setup
 var app = express();
 var server = app.listen(5000, function(){
@@ -71,14 +71,14 @@ function exceptionHandler(topic, data){
   }
   io.sockets.emit('noti', "Bale marked");
 }
-
+/*
 client2.on('connect', function () {
   client2.subscribe('nurapisample/epc', function (err) {
     if (err) {
       console.log(err);
     } 
   });
-});
+});*/
 
 client.on('connect', function () {
     client.subscribe('trigger', function (err) {
@@ -121,7 +121,7 @@ client.on('connect', function () {
     });
 
   });
-  
+  /*
   client2.on('message', function (topic, message) {
     message = JSON.parse(message.toString());
     switch(topic){
@@ -140,17 +140,17 @@ client.on('connect', function () {
             }
             if (!flag){
               context.arr.push(message.id);
-              /*var msg = [];
+              var msg = [];
               msg[0] = String(message.id);
               let length = message.id.length;
-              msg[1] = "001" + context.timenow + message.id.substring(length-8 , length+1);
-              context.arr.push(msg[1]);
-              client2.publish('changeEPC', JSON.stringify(msg));*/
+              msg[1] = "002" + context.timenow + message.id.substring(length-8 , length+1);
+              //context.arr.push(msg[1]);
+              client.publish('changeEPC', JSON.stringify(msg));
               io.sockets.emit('noti', "New tag found");
             }
             break;
             }
-  });
+  });*/
 
   client.on('message', function (topic, message) {
     message = JSON.parse(message.toString());
@@ -184,7 +184,7 @@ client.on('connect', function () {
               var msg = [];
               msg[0] = String(message.id);
               let length = message.id.length;
-              msg[1] = "001" + context.timenow + message.id.substring(length-8 , length+1);
+              msg[1] = "002" + context.timenow + message.id.substring(length-8 , length+1);
               //context.arr.push(msg[1]);
               client.publish('changeEPC', JSON.stringify(msg));
               io.sockets.emit('noti', "New tag found");
@@ -211,8 +211,8 @@ client.on('connect', function () {
             }
             io.sockets.emit('locationPath', message);
             var tractorData = {
-                deviceId: "LastBorn",
-                key: "JGUrI7BlNQayBL8I/kxWY3xlUbEp6icGKqmVWyT/E9U=",
+                deviceId: "LittleBoy",
+                key: "eBmI9Cq1RbV3ISEeuJAUk+OtmimSj4fBdGyViSRkYJM=",
                 protocol: "mqtt",
                 data: {
                   dateTimeAdded : new Date(),
@@ -228,12 +228,12 @@ client.on('connect', function () {
                 context = [];
                 break;
             }
-            let volume = 12*12*3.14159265359*5;
+            let volume = 1.25*1.25*3.14159265359*1.22/4;
             let weight = volume*(message.dryMatter.toFixed(2)*997+((3.5*(100-message.dryMatter.toFixed(2)))+90));
             let DMWeight = volume*((3.5*(100-message.dryMatter.toFixed(2)))+90);
             baleData = {
-                deviceId: "LastBorn",
-                key: "JGUrI7BlNQayBL8I/kxWY3xlUbEp6icGKqmVWyT/E9U=",
+                deviceId: "LittleBoy",
+                key: "eBmI9Cq1RbV3ISEeuJAUk+OtmimSj4fBdGyViSRkYJM=",
                 protocol: "mqtt",
                 data: {
                     baleId : context.arr,
@@ -243,7 +243,7 @@ client.on('connect', function () {
                     internalHumidity: String(message.humid2.toFixed(2)),
                     dryMatterValue:String(100-message.dryMatter.toFixed(2)),
                     FaultyCode: [100],
-                    baleWeight: String(weight.toFixed(2)),
+                    baleWeight: String(DMWeight.toFixed(2)),
                     //DMWeight: String(DMWeight.toFixed(2)),
                     dateTimeAdded: new Date(),
                     IsFaulty: false,
@@ -254,20 +254,32 @@ client.on('connect', function () {
                     harvestIntervalTime : parseFloat(millisToMinutesAndSeconds(new Date() - context.timenow))
                 }
             };
-            //iotclient.open(connectCallback);
             client.publish('device-data', JSON.stringify(baleData));
-            /*fs.appendFile('data.txt', JSON.stringify(baleData), function (err) {
-              if (err) throw err;
-              console.log('Updated!');
-            });*/
+            /*azureclient.open(function (err) {
+              if (err) {
+                console.error('Could not connect: ' + err.message);
+              } else {
+                console.log('Client connected');
+            
+                azureclient.on('error', function (err) {
+                  console.error(err.message);
+                  process.exit(-1);
+                });
+            var azuremsg = new AzureMessage(JSON.stringify(baleData));
+            azureclient.sendEvent(azuremsg, function (err) {
+              if (err) {
+                console.error('send error: ' + err.toString());
+              } else {
+                console.log('message sent');
+              }
+            });
+            }});*/
             totalBale++;
-            //baleData.data.totalBale = totalBale;
+            baleData.data.totalBale = totalBale;
             io.sockets.emit('device-data', baleData);
             io.sockets.emit('noti', "Uploaded");
-            console.log(baleData);
             context = null;
             client.publish('trigger', '1');
-            console.log(context);
             break;
             
     }
@@ -278,21 +290,3 @@ client.on('connect', function () {
     var seconds = ((millis % 60000) / 1000).toFixed(0);
     return minutes + "." + (seconds < 10 ? '0' : '') + seconds;
   }
-
-  var connectCallback = function (err) {
-    if (err) {
-      console.error('Could not connect: ' + err);
-    } else {
-      console.log('Client connected');
-      //var msg = new Message('some data from my device');
-      iotclient.sendEvent(msg, function (err) {
-        if (err) console.log(err.toString());
-      });
-      iotclient.on('message', function (msg) { 
-        console.log(msg); 
-        iotclient.complete(msg, function () {
-          console.log('completed');
-        });
-      }); 
-    }
-  };

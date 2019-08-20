@@ -9,8 +9,6 @@
   "author": "BaoT",
   "license": "ISC",
   "dependencies": {
-    "azure-iot-device": "^1.11.0",
-    "azure-iot-device-mqtt": "^1.9.7",
     "express": "^4.16.4",
     "mqtt": "^2.18.8",
     "socket.io": "^2.2.0"

@@ -2,7 +2,7 @@ var express = require('express');
 var socket = require('socket.io');
 var mqtt = require('mqtt');
 var fs = require('fs');
-var client  = mqtt.connect('http://192.168.0.110:1883');
+var client  = mqtt.connect('http://192.168.0.156:1883');
 //var client2 = mqtt.connect('http://192.168.0.156:1883');
 var context = new Object();
 
@@ -10,12 +10,13 @@ var context = new Object();
 timenow = new Date();
 context.timenow = String(timenow.getTime());
 
+var kosteus, paino;
 // create iothub device instance
-var connectionString = "HostName=DigiBaleDeviceHuB.azure-devices.net;DeviceId=LittleBoy;SharedAccessKey=eBmI9Cq1RbV3ISEeuJAUk+OtmimSj4fBdGyViSRkYJM=";
+/*var connectionString = "HostName=DigiBaleDeviceHuB.azure-devices.net;DeviceId=LittleBoy;SharedAccessKey=eBmI9Cq1RbV3ISEeuJAUk+OtmimSj4fBdGyViSRkYJM=";
 var Mqtt = require('azure-iot-device-mqtt').Mqtt;
 var DeviceClient = require('azure-iot-device').Client
 var AzureMessage = require('azure-iot-device').Message;
-var azureclient = DeviceClient.fromConnectionString(connectionString, Mqtt);
+var azureclient = DeviceClient.fromConnectionString(connectionString, Mqtt);*/
 
 var totalBale = 0; // total bale made in a day, reseted when prj reloaded
 var baleData; // obj to store data before send to server
@@ -27,7 +28,7 @@ var server = app.listen(5000, function(){
 });
 
 // Static files
-app.use(express.static('/home/pi/digipaali-device-interface/public')); // change to /home/pi/digipaali-device-interface/public
+app.use(express.static('public')); // change to /home/pi/digipaali-device-interface/public
 
 // Socket setup & pass server
 var io = socket(server);
@@ -106,15 +107,7 @@ client.on('connect', function () {
       }
     });
 
-    //update location and time
-    client.subscribe('dry-matter', function (err) {
-      if (err) {
-        console.log(err);
-      }
-    });
-
-    //update location and time
-    client.subscribe('weight', function (err) {
+    client.subscribe('drymatter', function (err) {
       if (err) {
         console.log(err);
       }
@@ -181,22 +174,23 @@ client.on('connect', function () {
             }
             if (!flag){
               context.arr.push(message.id);
-              var msg = [];
+              /*var msg = [];
               msg[0] = String(message.id);
               let length = message.id.length;
-              msg[1] = "002" + context.timenow + message.id.substring(length-8 , length+1);
+              msg[1] = "002" + context.timenow + message.id.substring(length-8 , length+1);*/
               //context.arr.push(msg[1]);
-              client.publish('changeEPC', JSON.stringify(msg));
+              //client.publish('changeEPC', JSON.stringify(msg));
               io.sockets.emit('noti', "New tag found");
+              console.log(context.arr);
             }
             break;
             
-      case 'dry-matter':
-            if(context.timenow){
-              context.dryMatter = message.dryMatter;
-            }
+      case 'drymatter':
+              kosteus = message.dryMatter;
+              paino = message.weight;
+              //console.log(kosteus);
+              //console.log(paino);
             break;
-            //if correct, then make another case for Weight
 
       case 'outTopic3':
             if(context.timenow){
@@ -225,7 +219,10 @@ client.on('connect', function () {
       
       case "todatabase":
             if (!context.arr){
-                context = [];
+                context = new Object();
+                timenow = new Date();
+                context.timenow = String(timenow.getTime());
+                console.log(context.timenow);
                 break;
             }
             let volume = 1.25*1.25*3.14159265359*1.22/4;
@@ -241,9 +238,9 @@ client.on('connect', function () {
                     externalHumidity: String(message.humid1.toFixed(2)),
                     internalTemperature: String(message.temp2.toFixed(2)),
                     internalHumidity: String(message.humid2.toFixed(2)),
-                    dryMatterValue:String(100-message.dryMatter.toFixed(2)),
+                    dryMatterValue:   kosteus.toFixed(2),
                     FaultyCode: [100],
-                    baleWeight: String(DMWeight.toFixed(2)),
+                    baleWeight: paino.toFixed(2),
                     //DMWeight: String(DMWeight.toFixed(2)),
                     dateTimeAdded: new Date(),
                     IsFaulty: false,
@@ -278,8 +275,12 @@ client.on('connect', function () {
             baleData.data.totalBale = totalBale;
             io.sockets.emit('device-data', baleData);
             io.sockets.emit('noti', "Uploaded");
-            context = null;
-            client.publish('trigger', '1');
+            //context = null;
+            context = new Object();
+            timenow = new Date();
+            context.timenow = String(timenow.getTime());
+            console.log(timenow);
+            io.sockets.emit('noti', "New bale stamping started");
             break;
             
     }

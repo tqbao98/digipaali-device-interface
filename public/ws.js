@@ -1,6 +1,6 @@
 // Make connection
-//var socket = io.connect('http://192.168.0.110:5000');
-var socket = io.connect('http://localhost:5000');
+var socket = io.connect('http://192.168.0.110:5000');
+//var socket = io.connect('http://localhost:5000');
 var data = "hello";
 
 // Query DOM

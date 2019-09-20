@@ -2,8 +2,8 @@ var express = require('express');
 var socket = require('socket.io');
 var mqtt = require('mqtt');
 var fs = require('fs');
-var client  = mqtt.connect('http://192.168.0.156:1883');
-//var client2 = mqtt.connect('http://192.168.0.156:1883');
+var client  = mqtt.connect('http://192.168.0.110:1883');
+var client2 = mqtt.connect('http://192.168.0.156:1883');
 var context = new Object();
 
 // to start system automatically
@@ -28,7 +28,7 @@ var server = app.listen(5000, function(){
 });
 
 // Static files
-app.use(express.static('public')); // change to /home/pi/digipaali-device-interface/public
+app.use(express.static('/home/pi/digipaali-device-interface/public')); // change to /home/pi/digipaali-device-interface/public
 
 // Socket setup & pass server
 var io = socket(server);
@@ -72,14 +72,14 @@ function exceptionHandler(topic, data){
   }
   io.sockets.emit('noti', "Bale marked");
 }
-/*
+
 client2.on('connect', function () {
   client2.subscribe('nurapisample/epc', function (err) {
     if (err) {
       console.log(err);
     } 
   });
-});*/
+});
 
 client.on('connect', function () {
     client.subscribe('trigger', function (err) {
@@ -114,36 +114,37 @@ client.on('connect', function () {
     });
 
   });
-  /*
+  
   client2.on('message', function (topic, message) {
     message = JSON.parse(message.toString());
     switch(topic){
-      case 'nurapisample/epc':
-            if (!context.timenow){
-              break;}
-            if (!context.arr) {
-              context.arr = new Array();
-              context.arr[0] = "002" + context.timenow;
+        case 'nurapisample/epc':
+          if (!context.timenow){
+            break;}
+          if (!context.arr) {
+            context.arr = new Array();
+            context.arr[0] = "002" + context.timenow;
+          }
+          for (var j = 0; j <= context.arr.length; j++){ 
+              if (context.arr[j] == message.id){
+                  flag = true;
+                  break;
+              } else {flag = false;}
+          }
+          if (!flag){
+            context.arr.push(message.id);
+            /*var msg = [];
+            msg[0] = String(message.id);
+            let length = message.id.length;
+            msg[1] = "002" + context.timenow + message.id.substring(length-8 , length+1);*/
+            //context.arr.push(msg[1]);
+            //client.publish('changeEPC', JSON.stringify(msg));
+            io.sockets.emit('noti', "New tag found");
+            console.log(context.arr);
+          }
+          break;
             }
-            for (var j = 0; j <= context.arr.length; j++){ 
-                if (context.arr[j] == message.id){
-                    flag = true;
-                    break;
-                } else {flag = false;}
-            }
-            if (!flag){
-              context.arr.push(message.id);
-              var msg = [];
-              msg[0] = String(message.id);
-              let length = message.id.length;
-              msg[1] = "002" + context.timenow + message.id.substring(length-8 , length+1);
-              //context.arr.push(msg[1]);
-              client.publish('changeEPC', JSON.stringify(msg));
-              io.sockets.emit('noti', "New tag found");
-            }
-            break;
-            }
-  });*/
+  });
 
   client.on('message', function (topic, message) {
     message = JSON.parse(message.toString());
@@ -225,9 +226,9 @@ client.on('connect', function () {
                 console.log(context.timenow);
                 break;
             }
-            let volume = 1.25*1.25*3.14159265359*1.22/4;
+            let volume = 1.25*1.25*3.14159265359*1.23/4;
             let weight = volume*(message.dryMatter.toFixed(2)*997+((3.5*(100-message.dryMatter.toFixed(2)))+90));
-            let DMWeight = volume*((3.5*(100-message.dryMatter.toFixed(2)))+90);
+            let DMWeight = volume*((3.5*(100-kosteus))+90);
             baleData = {
                 deviceId: "LittleBoy",
                 key: "eBmI9Cq1RbV3ISEeuJAUk+OtmimSj4fBdGyViSRkYJM=",
@@ -240,7 +241,7 @@ client.on('connect', function () {
                     internalHumidity: String(message.humid2.toFixed(2)),
                     dryMatterValue:   kosteus.toFixed(2),
                     FaultyCode: [100],
-                    baleWeight: paino.toFixed(2),
+                    baleWeight: DMWeight.toFixed(2),
                     //DMWeight: String(DMWeight.toFixed(2)),
                     dateTimeAdded: new Date(),
                     IsFaulty: false,
@@ -271,10 +272,12 @@ client.on('connect', function () {
               }
             });
             }});*/
+            console.log()
             totalBale++;
             baleData.data.totalBale = totalBale;
             io.sockets.emit('device-data', baleData);
             io.sockets.emit('noti', "Uploaded");
+            
             //context = null;
             context = new Object();
             timenow = new Date();

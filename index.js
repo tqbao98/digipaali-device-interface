@@ -10,7 +10,7 @@ var context = new Object();
 timenow = new Date();
 context.timenow = String(timenow.getTime());
 
-var kosteus, paino;
+//var kosteus, paino;
 // create iothub device instance
 /*var connectionString = "HostName=DigiBaleDeviceHuB.azure-devices.net;DeviceId=LittleBoy;SharedAccessKey=eBmI9Cq1RbV3ISEeuJAUk+OtmimSj4fBdGyViSRkYJM=";
 var Mqtt = require('azure-iot-device-mqtt').Mqtt;
@@ -123,7 +123,7 @@ client.on('connect', function () {
             break;}
           if (!context.arr) {
             context.arr = new Array();
-            context.arr[0] = "002" + context.timenow;
+            context.arr[0] = "003" + context.timenow;
           }
           for (var j = 0; j <= context.arr.length; j++){ 
               if (context.arr[j] == message.id){
@@ -136,7 +136,7 @@ client.on('connect', function () {
             /*var msg = [];
             msg[0] = String(message.id);
             let length = message.id.length;
-            msg[1] = "002" + context.timenow + message.id.substring(length-8 , length+1);*/
+            msg[1] = "003" + context.timenow + message.id.substring(length-8 , length+1);*/
             //context.arr.push(msg[1]);
             //client.publish('changeEPC', JSON.stringify(msg));
             io.sockets.emit('noti', "New tag found");
@@ -165,7 +165,7 @@ client.on('connect', function () {
               break;}
             if (!context.arr) {
               context.arr = new Array();
-              context.arr[0] = "002" + context.timenow;
+              context.arr[0] = "003" + context.timenow;
             }
             for (var j = 0; j <= context.arr.length; j++){ 
                 if (context.arr[j] == message.id){
@@ -178,7 +178,7 @@ client.on('connect', function () {
               /*var msg = [];
               msg[0] = String(message.id);
               let length = message.id.length;
-              msg[1] = "002" + context.timenow + message.id.substring(length-8 , length+1);*/
+              msg[1] = "003" + context.timenow + message.id.substring(length-8 , length+1);*/
               //context.arr.push(msg[1]);
               //client.publish('changeEPC', JSON.stringify(msg));
               io.sockets.emit('noti', "New tag found");
@@ -186,12 +186,12 @@ client.on('connect', function () {
             }
             break;
             
-      case 'drymatter':
+      /*case 'drymatter':
               kosteus = message.dryMatter;
               paino = message.weight;
               //console.log(kosteus);
               //console.log(paino);
-            break;
+            break;*/
 
       case 'outTopic3':
             if(context.timenow){
@@ -206,8 +206,8 @@ client.on('connect', function () {
             }
             io.sockets.emit('locationPath', message);
             var tractorData = {
-                deviceId: "LittleBoy",
-                key: "eBmI9Cq1RbV3ISEeuJAUk+OtmimSj4fBdGyViSRkYJM=",
+                deviceId: "LastBorn",
+                key: "JGUrI7BlNQayBL8I/kxWY3xlUbEp6icGKqmVWyT/E9U=",
                 protocol: "mqtt",
                 data: {
                   dateTimeAdded : new Date(),
@@ -227,11 +227,11 @@ client.on('connect', function () {
                 break;
             }
             let volume = 1.25*1.25*3.14159265359*1.23/4;
-            let weight = volume*(message.dryMatter.toFixed(2)*997+((3.5*(100-message.dryMatter.toFixed(2)))+90));
-            let DMWeight = volume*((3.5*(100-kosteus))+90);
+            let weight = volume*((3.5*(100-message.dryMatter.toFixed(2)))+90);
+            //let DMWeight = volume*((3.5*(100-kosteus))+90);
             baleData = {
-                deviceId: "LittleBoy",
-                key: "eBmI9Cq1RbV3ISEeuJAUk+OtmimSj4fBdGyViSRkYJM=",
+                deviceId: "LastBorn",
+                key: "JGUrI7BlNQayBL8I/kxWY3xlUbEp6icGKqmVWyT/E9U=",
                 protocol: "mqtt",
                 data: {
                     baleId : context.arr,
@@ -239,9 +239,9 @@ client.on('connect', function () {
                     externalHumidity: String(message.humid1.toFixed(2)),
                     internalTemperature: String(message.temp2.toFixed(2)),
                     internalHumidity: String(message.humid2.toFixed(2)),
-                    dryMatterValue:   kosteus.toFixed(2),
+                    dryMatterValue:   message.dryMatter.toFixed(2),
                     FaultyCode: [100],
-                    baleWeight: DMWeight.toFixed(2),
+                    baleWeight: weight.toFixed(2),
                     //DMWeight: String(DMWeight.toFixed(2)),
                     dateTimeAdded: new Date(),
                     IsFaulty: false,

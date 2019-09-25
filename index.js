@@ -123,7 +123,7 @@ client.on('connect', function () {
             break;}
           if (!context.arr) {
             context.arr = new Array();
-            context.arr[0] = "003" + context.timenow;
+            context.arr[0] = "002" + context.timenow;
           }
           for (var j = 0; j <= context.arr.length; j++){ 
               if (context.arr[j] == message.id){
@@ -136,7 +136,7 @@ client.on('connect', function () {
             /*var msg = [];
             msg[0] = String(message.id);
             let length = message.id.length;
-            msg[1] = "003" + context.timenow + message.id.substring(length-8 , length+1);*/
+            msg[1] = "002" + context.timenow + message.id.substring(length-8 , length+1);*/
             //context.arr.push(msg[1]);
             //client.publish('changeEPC', JSON.stringify(msg));
             io.sockets.emit('noti', "New tag found");
@@ -155,6 +155,8 @@ client.on('connect', function () {
             timenow = new Date();
             context.timenow = String(timenow.getTime());
             console.log(timenow);
+            context.arr = new Array([]);
+            context.arr[0] = String(timenow.getTime());
             //msg2 = null;
             //sent = false;
             io.sockets.emit('noti', "New bale stamping started");
@@ -165,7 +167,7 @@ client.on('connect', function () {
               break;}
             if (!context.arr) {
               context.arr = new Array();
-              context.arr[0] = "003" + context.timenow;
+              context.arr[0] = "002" + context.timenow;
             }
             for (var j = 0; j <= context.arr.length; j++){ 
                 if (context.arr[j] == message.id){
@@ -178,7 +180,7 @@ client.on('connect', function () {
               /*var msg = [];
               msg[0] = String(message.id);
               let length = message.id.length;
-              msg[1] = "003" + context.timenow + message.id.substring(length-8 , length+1);*/
+              msg[1] = "002" + context.timenow + message.id.substring(length-8 , length+1);*/
               //context.arr.push(msg[1]);
               //client.publish('changeEPC', JSON.stringify(msg));
               io.sockets.emit('noti', "New tag found");
@@ -206,8 +208,8 @@ client.on('connect', function () {
             }
             io.sockets.emit('locationPath', message);
             var tractorData = {
-                deviceId: "LastBorn",
-                key: "JGUrI7BlNQayBL8I/kxWY3xlUbEp6icGKqmVWyT/E9U=",
+                deviceId: "LittleBoy",
+                key: "eBmI9Cq1RbV3ISEeuJAUk+OtmimSj4fBdGyViSRkYJM=",
                 protocol: "mqtt",
                 data: {
                   dateTimeAdded : new Date(),
@@ -226,12 +228,10 @@ client.on('connect', function () {
                 console.log(context.timenow);
                 break;
             }
-            let volume = 1.25*1.25*3.14159265359*1.23/4;
-            let weight = volume*((3.5*(100-message.dryMatter.toFixed(2)))+90);
             //let DMWeight = volume*((3.5*(100-kosteus))+90);
             baleData = {
-                deviceId: "LastBorn",
-                key: "JGUrI7BlNQayBL8I/kxWY3xlUbEp6icGKqmVWyT/E9U=",
+                deviceId: "LittleBoy",
+                key: "eBmI9Cq1RbV3ISEeuJAUk+OtmimSj4fBdGyViSRkYJM=",
                 protocol: "mqtt",
                 data: {
                     baleId : context.arr,
@@ -239,9 +239,9 @@ client.on('connect', function () {
                     externalHumidity: String(message.humid1.toFixed(2)),
                     internalTemperature: String(message.temp2.toFixed(2)),
                     internalHumidity: String(message.humid2.toFixed(2)),
-                    dryMatterValue:   message.dryMatter.toFixed(2),
+                    dryMatterValue: 0,
                     FaultyCode: [100],
-                    baleWeight: weight.toFixed(2),
+                    baleWeight: 0,
                     //DMWeight: String(DMWeight.toFixed(2)),
                     dateTimeAdded: new Date(),
                     IsFaulty: false,

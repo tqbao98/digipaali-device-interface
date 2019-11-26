@@ -28,27 +28,28 @@ var server = app.listen(5000, function(){
 });
 
 // Static files
-app.use(express.static('/home/pi/digipaali-device-interface/public')); // change to /home/pi/digipaali-device-interface/public
+app.use(express.static('public')); // change to /home/pi/digipaali-device-interface/public
 
 // Socket setup & pass server
 var io = socket(server);
 io.on('connection', (socket) => {
-    console.log('made socket connection', socket.id);
+    //console.log('made socket connection', socket.id);
 
     // Handle events
     socket.on('preservative', function(data){
       exceptionHandler('preservative',data);
     });
-    socket.on('badSilage', function(data){
-      exceptionHandler('badSilage',data);
+    socket.on('technical-problem', function(data){
+      exceptionHandler('technical-problem',data);
     });
-    socket.on('badWrap', function(data){
-      exceptionHandler('badWrap',data);
+    socket.on('impurity', function(data){
+      exceptionHandler('impurity',data);
     });
     socket.on('add', function(data){
       client.publish("trigger", "1");
     });
     socket.on('upload', function(data){
+      //io.sockets.emit("position", data);
       client.publish("sensors", "1");
     });
 });
@@ -57,9 +58,9 @@ function exceptionHandler(topic, data){
   var errorCode;
   if (baleData != null){
     switch(topic){
-      case 'preservative': errorCode = 101; break;
-      case 'badSilage': errorCode = 102; break;
-      case 'badWrap': errorCode = 103; break;
+      case 'technical-problem': errorCode = 101; break;
+      case 'preservative': errorCode = 102; break;
+      case 'impurity': errorCode = 103; break;
       default: errorCode = 100; break;
     }
     if (!context.errorCode) {context.errorCode = new Array();}

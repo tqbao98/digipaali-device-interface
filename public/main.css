@@ -4,27 +4,24 @@ body {
 
 #map {
     height: 100%;
+    
 }
 
 #info {
     height: 100%;
     overflow-y: auto;
-}
-
-#total-bale {
-    text-align: center;
-    font-size: 30px;
-    padding-top: 5px;
+    background-color: #FEFEFE;
 }
 
 #exception {
     text-align: center;
-    padding-top: 10%;
+    padding-top: 70%;
 }
 
 
 #data {
-    margin: 0px;  
+    margin-top: 20%;
+
 }
 
 p {
@@ -32,10 +29,8 @@ p {
     margin-bottom: 2%;
 }
 
-
-
 .body-wrapper {
-    height: 100vh;
+    height: 100%;
 }
 
 .btn {
@@ -47,6 +42,62 @@ p {
     padding: 10px;
 }
 
+.info-panel{
+    height: 20vh;
+    background-color: #ffffff;
+    border-radius: 15px;
+}
+
+#upload{
+    position: absolute;
+    right:   10%;
+    bottom:   25%;
+}
+
+#impurity{
+    position: absolute;
+    right:   15%;
+    bottom:   25%;
+}
+
+#technical-problem{
+    position: absolute;
+    right:   19%;
+    bottom:   25%;
+}
+
+#preservative{
+    position: absolute;
+    right:   23%;
+    bottom:   25%;
+}
+
+#add{
+    position: absolute;
+    right:   27%;
+    bottom:   25%;
+}
+
+.data-wrapper{
+    text-align: center;
+}
+
+.data-icon{
+    margin-top:20px;
+    width:20%;
+    height:20%;
+}
+
+.data-desc{
+    font-style: italic;
+    font-family: Helvetica;
+}
+
+.data-value{
+    font-size: 400%;
+    color: #eb8242;
+    font-family: Georgia;
+}
 /*.dot {
     height: 25px;
     width: 25px;
@@ -109,11 +160,6 @@ p {
     #map {
         height: 30%;
     }
-    #total-bale {
-        text-align: center;
-        font-size: 22px;
-        padding-top: 5px;
-    }
     #info {
         height: 70%;
     }
@@ -122,7 +168,51 @@ p {
         margin: 5px 0 5px 0
     }
     
+    #exception {
+        padding-top: 90%;
+    }
+
+    #upload{
+        position: absolute;
+        right:   10%;
+        bottom:   5%;
+    }
+
+    #impurity{
+        position: absolute;
+        right:   30%;
+        bottom:   5%;
+    }
+
+    #technical-problem{
+        position: absolute;
+        right:   45%;
+        bottom:   5%;
+    }
+
+    #preservative{
+        position: absolute;
+        right:   60%;
+        bottom:   5%;
+    }
+
+    #add{
+        position: absolute;
+        right:   75%;
+        bottom:   5%;
+    }
+
     .btn-container {
         padding: 5px;
+    }
+
+    .data-icon{
+        margin-top:10px;
+        width:25%;
+        height:20%;
+    }
+    
+    .data-value{
+        font-size: 220%;
     }
   }

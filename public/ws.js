@@ -1,6 +1,6 @@
 // Make connection
-var socket = io.connect('http://192.168.0.110:5000');
-//var socket = io.connect('http://localhost:5000');
+//var socket = io.connect('http://192.168.0.110:5000');
+var socket = io.connect('http://localhost:5000');
 var data = "hello";
 
 // Query DOM
@@ -8,8 +8,10 @@ var message = document.getElementById('message'),
 
       //Exception
       preservative = document.getElementById('preservative'),
-      badSilage = document.getElementById('bad-silage'),
-      badWrap = document.getElementById('bad-wrap'),
+      technical-problem = document.getElementById('technical-problem'),
+      impurity = document.getElementById('impurity'),
+      add = document.getElementById('add');
+      upload = document.getElementById('upload');
 
       //Table
       baleid = document.getElementById('baleid');
@@ -20,8 +22,7 @@ var message = document.getElementById('message'),
       dryMatter = document.getElementById('dryMatter');
       weight = document.getElementById('weight');
       totalBale = document.getElementById('total-bale');
-      add = document.getElementById('add');
-      upload = document.getElementById('upload');
+
      // dot = document.getElementById('dot1');
 
 // Emit triggers
@@ -38,12 +39,12 @@ preservative.addEventListener("click", function(){
     socket.emit("preservative",data);
 });
 
-badSilage.addEventListener("click", function(){
-    socket.emit("badSilage",data);
+technical-problem.addEventListener("click", function(){
+    socket.emit("technical-problem",data);
 });
 
-badWrap.addEventListener("click", function(){
-    socket.emit("badWrap",data);
+impurity.addEventListener("click", function(){
+    socket.emit("impurity",data);
 });
 
 // Listen for data from server
@@ -51,11 +52,11 @@ socket.on("device-data", function(data){
     baleid.innerHTML = data.data.baleId[0];
     outTemp.innerHTML = data.data.externalTemperature + "°C";
     outHum.innerHTML = data.data.externalHumidity + "%";
-    inTemp.innerHTML = data.data.internalTemperature + "°C";
-    inHum.innerHTML = data.data.internalHumidity + "%";
+    inTemp.innerHTML =  "N/A";
+    inHum.innerHTML = "N/A";
     dryMatter.innerHTML = data.data.dryMatterValue + "%";
-    weight.innerHTML = data.data.baleWeight;
-    totalBale.innerHTML = "You have made " + data.data.totalBale + " bales today!";
+    weight.innerHTML = data.data.baleWeight + "kg";
+    totalBale.innerHTML = data.data.totalBale;
 });
 
 socket.on('noti', function(data){
@@ -64,7 +65,6 @@ socket.on('noti', function(data){
 });
 
 socket.on('reader-ready', function(data){
-    //alert('Bale was marked as '+ data);
     console.log("ready");
     dot.style.backgroundColor = "green";
 });
@@ -75,10 +75,21 @@ function snackbar(data) {
     snackbar.innerHTML = data;
     // Add the "show" class to DIV
     snackbar.className = "show";
-  
     // After 3 seconds, remove the show class from DIV
     setTimeout(function(){ snackbar.className = snackbar.className.replace("show", ""); }, 3000);
-  }
+}
+  
+function getLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position){
+            socket.emit("upload", {lat: position.coords.latitude, long: position.coords.longitude});
+        });
+    } else { 
+        alert("Geolocation is not supported by this browser.");
+    }
+}
+
+
 
 
 

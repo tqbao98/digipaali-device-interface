@@ -19,7 +19,7 @@
 </head>
 
 <body>
-    <div id="container" class="body-wrapper row">
+    <div id="container" class="body-wrapper row" style="margin-bottom: 0px;">
             <div id="map" class="col s12 m6">
                 <script async src="main.js"></script>
                 <script async defer
@@ -27,55 +27,63 @@
                 </script>    
             </div>
             <div id="info" class="col s12 m6">
-
-                    <div class="center-align" id="total-bale" class="flow-text">You have made ... bales!!</div>
                     <div class="container">
-                        <div id="data" >
-                            <table class="striped">
-                                    <thead class="blue-grey lighten-2">
-                                            <tr>
-                                                <th>Measurement</th>
-                                                <th>Value</th>
-                                            </tr>
-                                          </thead>
-                                          <tbody id="table">
-                                                <tr>
-                                                  <td>Bale ID</td>
-                                                  <td><p id="baleid"></p></td>
-                                                </tr>
-                                                <tr>
-                                                  <td>Field temperature</td>
-                                                  <td><p id="outTemp"></p></td>
-                                                </tr>
-                                                <tr>
-                                                  <td>Field humidity</td>
-                                                  <td><p id="outHum"></p></td>
-                                                </tr>
-                                                <tr>
-                                                  <td>Chamber temperature</td>
-                                                  <td><p id="inTemp"></p></td>
-                                                </tr>
-                                                <tr>
-                                                  <td>Chamber humidity</td>
-                                                  <td><p id="inHum"></p></td>
-                                                </tr>     
-                                                <tr>
-                                                  <td>Dry matter</td>
-                                                  <td><p id="dryMatter"></p></td>
-                                                </tr>
-                                                <tr>
-                                                  <td>Weight</td>
-                                                  <td><p id="weight"></p></td>
-                                                </tr>
-                                              </tbody>
-                            </table>
+                        <div id="data">
+
+                            <div class="col s4 m4" style="padding: 5px;">
+                                <div class="info-panel z-depth-1 data-wrapper">
+                                    <img src="./img/icons/hashtag.png" class="data-icon">
+                                    <p class="data-desc">Total</p>
+                                    <p id="total-bale" class="data-value">0</p>
+                                </div>
+                            </div>
+
+                            <div class="col s4 m4" style="padding: 5px;">
+                                <div class="info-panel z-depth-1 data-wrapper">
+                                    <img src="./img/icons/temperature.png" class="data-icon">
+                                    <p class="data-desc">Temperature</p>
+                                    <p id="outTemp" class="data-value">0°C</p>
+                                </div>
+                            </div>
+
+                            <div class="col s4 m4" style="padding: 5px;">
+                                <div class="info-panel z-depth-1 data-wrapper">
+                                    <img src="./img/icons/humidity.png" class="data-icon">
+                                    <p class="data-desc">Humidity</p>
+                                    <p id="outHum" class="data-value">0%</p>
+                                </div>
+                            </div>
+
+                            <div class="col s4 m4" style="padding: 5px;">
+                                <div class="info-panel z-depth-1 data-wrapper">
+                                    <img src="./img/icons/drymatter.png" class="data-icon">
+                                    <p class="data-desc">Dry matter</p>
+                                    <p id="dryMatter" class="data-value">0%</p>
+                                </div>
+                            </div>
+
+                            <div class="col s4 m4" style="padding: 5px;">
+                                <div class="info-panel z-depth-1 data-wrapper">
+                                    <img src="./img/icons/scale.png" class="data-icon">
+                                    <p class="data-desc">Weight</p>
+                                    <p id="weight" class="data-value">0kg</p>
+                                </div>
+                            </div>
+
+                            <div class="col s4 m4" style="padding: 5px;">
+                                <div class="info-panel z-depth-1 data-wrapper">
+                                    <img src="./img/icons/time.png" class="data-icon">
+                                    <p class="data-desc">Harvest time</p>
+                                    <p id="harvestTime" class="data-value">0m</p>
+                                </div>
+                            </div>
                         </div>
                         <div id="exception" class="center-align row btn-container">
-                            <div class="col s12 m4"><button id="preservative" class="btn waves-effect blue-grey lighten-1"><i class="large material-icons">invert_colors_off</i></button></div> 
-                            <div class="col s12 m4"><button id="bad-silage" class="btn waves-effect blue-grey lighten-1"><i class="large material-icons">spa</i></button></div>
-                            <div class="col s12 m4"><button id="bad-wrap" class="btn waves-effect blue-grey lighten-1"><i class="large material-icons">panorama_wide_angle</i></button></div>
-                            <div class="col s12 m6"><button id="add" class="btn waves-effect blue-grey lighten-1"><i class="large material-icons">add</i></button></div>
-                            <div class="col s12 m6"><button id="upload" class="btn waves-effect blue-grey lighten-1"><i class="large material-icons">cloud_upload</i></button></div>   
+                            <div class="col s2 m6"><button id="add" class="btn-floating  waves-effect blue-grey lighten-1"><i class="large material-icons">add</i></button></div>
+                            <div class="col s2 m6"><button id="technical-problem" class="btn-floating  waves-effect purple lighten-1"><i class="large material-icons">report_problem</i></button></div>
+                            <div class="col s2 m6"><button id="preservative" class="btn-floating  waves-effect green lighten-1"><i class="large material-icons">invert_colors_off</i></button></div> 
+                            <div class="col s2 m6"><button id="impurity" class="btn-floating  waves-effect brown lighten-1"><i class="large material-icons">whatshot</i></button></div>
+                            <div class="col s2 m12"><button id="upload" class="btn-floating btn-large waves-effect blue darken-1"><i class="large material-icons">cloud_upload</i></button></div>
                         </div>
                         
                           <!-- The actual snackbar -->

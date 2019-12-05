@@ -5,7 +5,7 @@ var fs = require('fs');
 var client  = mqtt.connect('http://192.168.0.110:1883');
 var client2 = mqtt.connect('http://192.168.0.156:1883');
 var context = new Object();
-
+//var client  = mqtt.connect('mqtts://iot.research.hamk.fi:8883');
 // to start system automatically
 timenow = new Date();
 context.timenow = String(timenow.getTime());
@@ -39,11 +39,11 @@ io.on('connection', (socket) => {
     socket.on('preservative', function(data){
       exceptionHandler('preservative',data);
     });
-    socket.on('badSilage', function(data){
-      exceptionHandler('badSilage',data);
+    socket.on('technical-problem', function(data){
+      exceptionHandler('technical-problem',data);
     });
-    socket.on('badWrap', function(data){
-      exceptionHandler('badWrap',data);
+    socket.on('impurity', function(data){
+      exceptionHandler('impurity',data);
     });
     socket.on('add', function(data){
       client.publish("trigger", "1");
@@ -58,8 +58,8 @@ function exceptionHandler(topic, data){
   if (baleData != null){
     switch(topic){
       case 'preservative': errorCode = 101; break;
-      case 'badSilage': errorCode = 102; break;
-      case 'badWrap': errorCode = 103; break;
+      case 'technical-problem': errorCode = 102; break;
+      case 'impurity': errorCode = 103; break;
       default: errorCode = 100; break;
     }
     if (!context.errorCode) {context.errorCode = new Array();}
@@ -70,7 +70,8 @@ function exceptionHandler(topic, data){
     console.log(baleData);
     client.publish('device-data', JSON.stringify(baleData));
   }
-  io.sockets.emit('noti', "Bale marked");
+  io.sockets.emit('noti', "Bale marked as " + topic);
+  io.sockets.emit('error-bale', baleData);
 }
 
 client2.on('connect', function () {
@@ -143,29 +144,27 @@ client.on('connect', function () {
             console.log(context.arr);
           }
           break;
-            }
+        default: break;
+        }
   });
 
   client.on('message', function (topic, message) {
-    message = JSON.parse(message.toString());
-    // message is Buffer
+    message = JSON.parse(message.toString()); // message is Buffer
     switch(topic){
       case 'trigger':
-            context = new Object();
-            timenow = new Date();
+            context = new Object(); // create context for new bale
+            timenow = new Date(); // get timestamp for baleID
             context.timenow = String(timenow.getTime());
             console.log(timenow);
-            context.arr = new Array([]);
-            context.arr[0] = String(timenow.getTime());
-            //msg2 = null;
-            //sent = false;
-            io.sockets.emit('noti', "New bale stamping started");
+            context.arr = new Array([]); // temporary arr to store baleID and all tag IDs
+            context.arr[0] = String(timenow.getTime()); // first element is baleID
+            io.sockets.emit('noti', "New bale stamping started"); // notify to UI
             break;
       
       case 'nurapisample/epc':
-            if (!context.timenow){
+            if (!context.timenow){ // only process tag ID if a bale is being made
               break;}
-            if (!context.arr) {
+            if (!context.arr) { // create new arr of IDs if there's not any
               context.arr = new Array();
               context.arr[0] = "002" + context.timenow;
             }
@@ -188,12 +187,14 @@ client.on('connect', function () {
             }
             break;
             
-      /*case 'drymatter':
+      case 'drymatter':
+              //console.log(message)
               kosteus = message.dryMatter;
               paino = message.weight;
+              io.sockets.emit('drymatter', message.toFixed(1));
               //console.log(kosteus);
               //console.log(paino);
-            break;*/
+            break;
 
       case 'outTopic3':
             if(context.timenow){
@@ -221,6 +222,7 @@ client.on('connect', function () {
             break;
       
       case "todatabase":
+            //console.log(message)
             if (!context.arr){
                 context = new Object();
                 timenow = new Date();
@@ -235,13 +237,13 @@ client.on('connect', function () {
                 protocol: "mqtt",
                 data: {
                     baleId : context.arr,
-                    externalTemperature: String(message.temp1.toFixed(2)),
-                    externalHumidity: String(message.humid1.toFixed(2)),
+                    externalTemperature: String(message.temp1.toFixed(1)),
+                    externalHumidity: String(message.humid1.toFixed(1)),
                     internalTemperature: String(message.temp2.toFixed(2)),
                     internalHumidity: String(message.humid2.toFixed(2)),
-                    dryMatterValue: 0,
+                    dryMatterValue: 35.6,
                     FaultyCode: [100],
-                    baleWeight: 0,
+                    baleWeight: 734,
                     //DMWeight: String(DMWeight.toFixed(2)),
                     dateTimeAdded: new Date(),
                     IsFaulty: false,

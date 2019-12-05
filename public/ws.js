@@ -8,21 +8,19 @@ var message = document.getElementById('message'),
 
       //Exception
       preservative = document.getElementById('preservative'),
-      badSilage = document.getElementById('bad-silage'),
-      badWrap = document.getElementById('bad-wrap'),
+      technicalproblem = document.getElementById('technical-problem'),
+      impurity = document.getElementById('impurity'),
 
       //Table
-      baleid = document.getElementById('baleid');
+
       outTemp = document.getElementById('outTemp');
       outHum = document.getElementById('outHum');
-      inTemp = document.getElementById('inTemp');
-      inHum = document.getElementById('inHum');
+      harvestTime = document.getElementById('harvestTime');
       dryMatter = document.getElementById('dryMatter');
       weight = document.getElementById('weight');
       totalBale = document.getElementById('total-bale');
       add = document.getElementById('add');
       upload = document.getElementById('upload');
-     // dot = document.getElementById('dot1');
 
 // Emit triggers
 add.addEventListener('click', function(){
@@ -38,24 +36,27 @@ preservative.addEventListener("click", function(){
     socket.emit("preservative",data);
 });
 
-badSilage.addEventListener("click", function(){
-    socket.emit("badSilage",data);
+technicalproblem.addEventListener("click", function(){
+    socket.emit("technical-problem",data);
 });
 
-badWrap.addEventListener("click", function(){
-    socket.emit("badWrap",data);
+impurity.addEventListener("click", function(){
+    socket.emit("impurity",data);
 });
 
 // Listen for data from server
 socket.on("device-data", function(data){
-    baleid.innerHTML = data.data.baleId[0];
+    console.log(data);
     outTemp.innerHTML = data.data.externalTemperature + "°C";
     outHum.innerHTML = data.data.externalHumidity + "%";
-    inTemp.innerHTML = data.data.internalTemperature + "°C";
-    inHum.innerHTML = data.data.internalHumidity + "%";
     dryMatter.innerHTML = data.data.dryMatterValue + "%";
-    weight.innerHTML = data.data.baleWeight;
-    totalBale.innerHTML = "You have made " + data.data.totalBale + " bales today!";
+    weight.innerHTML = data.data.baleWeight + "kg";
+    totalBale.innerHTML = data.data.totalBale;
+    harvestTime.innerHTML = data.data.harvestIntervalTime 
+});
+
+socket.on('drymatter', function(data){
+    dryMatter.innerHTML = data + "%";
 });
 
 socket.on('noti', function(data){

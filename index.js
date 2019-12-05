@@ -28,7 +28,7 @@ var server = app.listen(5000, function(){
 });
 
 // Static files
-app.use(express.static('public')); // change to /home/pi/digipaali-device-interface/public
+app.use(express.static('/home/pi/digipaali-device-interface/public')); // change to /home/pi/digipaali-device-interface/public
 
 // Socket setup & pass server
 var io = socket(server);
@@ -39,8 +39,8 @@ io.on('connection', (socket) => {
     socket.on('preservative', function(data){
       exceptionHandler('preservative',data);
     });
-    socket.on('technical-problem', function(data){
-      exceptionHandler('technical-problem',data);
+    socket.on('technicalproblem', function(data){
+      exceptionHandler('technicalproblem',data);
     });
     socket.on('impurity', function(data){
       exceptionHandler('impurity',data);
@@ -58,7 +58,7 @@ function exceptionHandler(topic, data){
   var errorCode;
   if (baleData != null){
     switch(topic){
-      case 'technical-problem': errorCode = 101; break;
+      case 'technicalproblem': errorCode = 101; break;
       case 'preservative': errorCode = 102; break;
       case 'impurity': errorCode = 103; break;
       default: errorCode = 100; break;

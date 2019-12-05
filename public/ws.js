@@ -1,6 +1,6 @@
 // Make connection
-//var socket = io.connect('http://192.168.0.110:5000');
-var socket = io.connect('http://localhost:5000');
+var socket = io.connect('http://192.168.0.110:5000');
+//var socket = io.connect('http://localhost:5000');
 var data = "hello";
 
 // Query DOM
@@ -8,7 +8,7 @@ var message = document.getElementById('message'),
 
       //Exception
       preservative = document.getElementById('preservative'),
-      technical-problem = document.getElementById('technical-problem'),
+      technicalproblem = document.getElementById('technicalproblem'),
       impurity = document.getElementById('impurity'),
       add = document.getElementById('add');
       upload = document.getElementById('upload');
@@ -39,8 +39,8 @@ preservative.addEventListener("click", function(){
     socket.emit("preservative",data);
 });
 
-technical-problem.addEventListener("click", function(){
-    socket.emit("technical-problem",data);
+technicalproblem.addEventListener("click", function(){
+    socket.emit("technicalproblem",data);
 });
 
 impurity.addEventListener("click", function(){

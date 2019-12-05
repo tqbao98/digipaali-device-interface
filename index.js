@@ -39,8 +39,8 @@ io.on('connection', (socket) => {
     socket.on('preservative', function(data){
       exceptionHandler('preservative',data);
     });
-    socket.on('technical-problem', function(data){
-      exceptionHandler('technical-problem',data);
+    socket.on('technicalproblem', function(data){
+      exceptionHandler('technicalproblem',data);
     });
     socket.on('impurity', function(data){
       exceptionHandler('impurity',data);
@@ -58,7 +58,7 @@ function exceptionHandler(topic, data){
   if (baleData != null){
     switch(topic){
       case 'preservative': errorCode = 101; break;
-      case 'technical-problem': errorCode = 102; break;
+      case 'technicalproblem': errorCode = 102; break;
       case 'impurity': errorCode = 103; break;
       default: errorCode = 100; break;
     }

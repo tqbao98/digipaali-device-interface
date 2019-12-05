@@ -37,7 +37,7 @@ preservative.addEventListener("click", function(){
 });
 
 technicalproblem.addEventListener("click", function(){
-    socket.emit("technical-problem",data);
+    socket.emit("technicalproblem",data);
 });
 
 impurity.addEventListener("click", function(){

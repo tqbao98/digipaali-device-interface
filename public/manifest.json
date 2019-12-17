@@ -3,8 +3,8 @@
     "short_name": "Digibale",
     "start_url": "/index.html",
     "display": "standalone",
-    "background_color": "#90a4ae",
-    "theme_color": "#78909c",
+    "background_color": "#FFFFFF",
+    "theme_color": "#ffffff",
     "permissions": [
         "https://*/",
         "https://www.google.com/",

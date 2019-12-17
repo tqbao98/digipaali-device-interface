@@ -43,8 +43,8 @@ function initMap(){
     var socket = io.connect('http://192.168.0.110:5000');
     //var socket = io.connect('http://localhost:5000');
     socket.on("device-data", function(baleData){
-        addMarker(data);
-        addInfo(data);
+        addMarker(baleData);
+        addInfo(baleData);
         map.setCenter({lat: baleData.data.harvestedLatitude, lng: baleData.data.harvestedLongitude});
         map.setZoom(16);
     });

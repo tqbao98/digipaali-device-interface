@@ -48,4 +48,21 @@ function initMap(){
         map.setCenter({lat: baleData.data.harvestedLatitude, lng: baleData.data.harvestedLongitude});
         map.setZoom(16);
     });
+
+    socket.on("error-bale", function(data){
+        var markerColor;
+        var image = './img/icons/bluemarker.png';
+        switch(data.data.FaultyCode){
+            case 101: markerColor = "1";
+            case 102: markerColor = "2";
+            case 103: markerColor = "3";
+            default: break;
+        };
+        markers[markers.length-1].setMap(null);
+        markers[markers.length] = new google.maps.Marker({
+            position: {lat: data.data.harvestedLatitude, lng: data.data.harvestedLongitude},
+            map: map,
+            icon: image
+            });
+    });
 }

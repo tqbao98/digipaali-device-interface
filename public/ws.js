@@ -14,16 +14,15 @@ var message = document.getElementById('message'),
       upload = document.getElementById('upload');
 
       //Table
-      baleid = document.getElementById('baleid');
+
       outTemp = document.getElementById('outTemp');
       outHum = document.getElementById('outHum');
-      inTemp = document.getElementById('inTemp');
-      inHum = document.getElementById('inHum');
+      harvestTime = document.getElementById('harvestTime');
       dryMatter = document.getElementById('dryMatter');
       weight = document.getElementById('weight');
       totalBale = document.getElementById('total-bale');
-
-     // dot = document.getElementById('dot1');
+      add = document.getElementById('add');
+      upload = document.getElementById('upload');
 
 // Emit triggers
 add.addEventListener('click', function(){
@@ -49,14 +48,17 @@ impurity.addEventListener("click", function(){
 
 // Listen for data from server
 socket.on("device-data", function(data){
-    baleid.innerHTML = data.data.baleId[0];
+    console.log(data);
     outTemp.innerHTML = data.data.externalTemperature + "°C";
     outHum.innerHTML = data.data.externalHumidity + "%";
-    inTemp.innerHTML =  "N/A";
-    inHum.innerHTML = "N/A";
     dryMatter.innerHTML = data.data.dryMatterValue + "%";
     weight.innerHTML = data.data.baleWeight + "kg";
     totalBale.innerHTML = data.data.totalBale;
+    harvestTime.innerHTML = data.data.harvestIntervalTime 
+});
+
+socket.on('drymatter', function(data){
+    dryMatter.innerHTML = data + "%";
 });
 
 socket.on('noti', function(data){

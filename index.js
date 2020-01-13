@@ -2,11 +2,13 @@ var express = require('express');
 var socket = require('socket.io');
 var mqtt = require('mqtt');
 var fs = require('fs');
-var client  = mqtt.connect('http://192.168.0.110:1883');
+//var client  = mqtt.connect('http://192.168.0.110:1883');
 var client2 = mqtt.connect('http://192.168.0.156:1883');
 var context = new Object();
 //var client  = mqtt.connect('mqtts://iot.research.hamk.fi:8883');
+var client  = mqtt.connect('http://localhost:1883');
 // to start system automatically
+farmId = '002';
 timenow = new Date();
 context.timenow = String(timenow.getTime());
 
@@ -17,7 +19,7 @@ var Mqtt = require('azure-iot-device-mqtt').Mqtt;
 var DeviceClient = require('azure-iot-device').Client
 var AzureMessage = require('azure-iot-device').Message;
 var azureclient = DeviceClient.fromConnectionString(connectionString, Mqtt);*/
-
+ 
 var totalBale = 0; // total bale made in a day, reseted when prj reloaded
 var baleData; // obj to store data before send to server
 
@@ -28,12 +30,21 @@ var server = app.listen(5000, function(){
 });
 
 // Static files
-app.use(express.static('/home/pi/digipaali-device-interface/public')); // change to /home/pi/digipaali-device-interface/public
+app.use(express.static('public')); // change to /home/pi/digipaali-device-interface/public
+
+// to check context obj via robotframework
+app.get('/test', (req, res) => {
+  return res.send(JSON.stringify(context));
+});
+
+app.get('/baleData', (req, res) => {
+  return res.send(JSON.stringify(baleData));
+});
 
 // Socket setup & pass server
 var io = socket(server);
-io.on('connection', (socket) => {
-    //console.log('made socket connection', socket.id);
+io.on('connection', (socket) => {  
+    console.log('made socket connection', socket.id);
 
     // Handle events
     socket.on('preservative', function(data){
@@ -51,6 +62,11 @@ io.on('connection', (socket) => {
     socket.on('upload', function(data){
       //io.sockets.emit("position", data);
       client.publish("sensors", "1");
+    });
+
+    // Disconnect listener
+    socket.on('disconnect', function() {
+      console.log('Client disconnected.');
     });
 });
 
@@ -115,6 +131,13 @@ client.on('connect', function () {
       }
     });
 
+    // listen for request to return "context" obj for testing
+    client.subscribe('testing/req', function (err) {
+      if (err) {
+        console.log(err);
+      }
+    });
+
   });
   
   client2.on('message', function (topic, message) {
@@ -125,7 +148,7 @@ client.on('connect', function () {
             break;}
           if (!context.arr) {
             context.arr = new Array();
-            context.arr[0] = "002" + context.timenow;
+            context.arr[0] = farmId + context.timenow;
           }
           for (var j = 0; j <= context.arr.length; j++){ 
               if (context.arr[j] == message.id){
@@ -138,7 +161,7 @@ client.on('connect', function () {
             /*var msg = [];
             msg[0] = String(message.id);
             let length = message.id.length;
-            msg[1] = "002" + context.timenow + message.id.substring(length-8 , length+1);*/
+            msg[1] = farmId + context.timenow + message.id.substring(length-8 , length+1);*/
             //context.arr.push(msg[1]);
             //client.publish('changeEPC', JSON.stringify(msg));
             io.sockets.emit('noti', "New tag found");
@@ -152,13 +175,18 @@ client.on('connect', function () {
   client.on('message', function (topic, message) {
     message = JSON.parse(message.toString()); // message is Buffer
     switch(topic){
-      case 'trigger':
+      case 'testing/req':
+            console.log(message);
+            client.publish('testing/res', JSON.stringify(context));
+            break;
+
+      case 'trigger': 
             context = new Object(); // create context for new bale
             timenow = new Date(); // get timestamp for baleID
             context.timenow = String(timenow.getTime());
             console.log(timenow);
             context.arr = new Array([]); // temporary arr to store baleID and all tag IDs
-            context.arr[0] = String(timenow.getTime()); // first element is baleID
+            context.arr[0] = farmId + context.timenow; // first element is baleID
             io.sockets.emit('noti', "New bale stamping started"); // notify to UI
             break;
       
@@ -167,8 +195,8 @@ client.on('connect', function () {
               break;}
             if (!context.arr) { // create new arr of IDs if there's not any
               context.arr = new Array();
-              context.arr[0] = "002" + context.timenow;
-            }
+              context.arr[0] = farmId + context.timenow;  
+            } 
             for (var j = 0; j <= context.arr.length; j++){ 
                 if (context.arr[j] == message.id){
                     flag = true;
@@ -180,7 +208,7 @@ client.on('connect', function () {
               /*var msg = [];
               msg[0] = String(message.id);
               let length = message.id.length;
-              msg[1] = "002" + context.timenow + message.id.substring(length-8 , length+1);*/
+              msg[1] = farmId + context.timenow + message.id.substring(length-8 , length+1);*/
               //context.arr.push(msg[1]);
               //client.publish('changeEPC', JSON.stringify(msg));
               io.sockets.emit('noti', "New tag found");
@@ -216,7 +244,7 @@ client.on('connect', function () {
                 data: {
                   dateTimeAdded : new Date(),
                   tractorLon: message.long,
-                  tractorLat: message.lat
+                  tractorLat: message.lat  
                 }
             }
             client.publish('tractor-data', JSON.stringify(tractorData));
@@ -285,6 +313,8 @@ client.on('connect', function () {
             context = new Object();
             timenow = new Date();
             context.timenow = String(timenow.getTime());
+            context.arr = new Array([]); 
+            context.arr[0] = farmId + context.timenow;
             console.log(timenow);
             io.sockets.emit('noti', "New bale stamping started");
             break;

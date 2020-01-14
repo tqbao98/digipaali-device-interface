@@ -2,17 +2,17 @@ var express = require('express');
 var socket = require('socket.io');
 var mqtt = require('mqtt');
 var fs = require('fs');
+
 //var client  = mqtt.connect('http://192.168.0.110:1883');
 var client2 = mqtt.connect('http://192.168.0.156:1883');
-var context = new Object();
 //var client  = mqtt.connect('mqtts://iot.research.hamk.fi:8883');
 var client  = mqtt.connect('http://localhost:1883');
 // to start system automatically
+var context = new Object();
 farmId = '002';
 timenow = new Date();
 context.timenow = String(timenow.getTime());
 
-//var kosteus, paino;
 // create iothub device instance
 /*var connectionString = "HostName=DigiBaleDeviceHuB.azure-devices.net;DeviceId=LittleBoy;SharedAccessKey=eBmI9Cq1RbV3ISEeuJAUk+OtmimSj4fBdGyViSRkYJM=";
 var Mqtt = require('azure-iot-device-mqtt').Mqtt;
@@ -30,7 +30,7 @@ var server = app.listen(5000, function(){
 });
 
 // Static files
-app.use(express.static('public')); // change to /home/pi/digipaali-device-interface/public
+app.use(express.static('./public')); // change to /home/pi/digipaali-device-interface/public
 
 // to check context obj via robotframework
 app.get('/test', (req, res) => {
@@ -41,7 +41,7 @@ app.get('/baleData', (req, res) => {
   return res.send(JSON.stringify(baleData));
 });
 
-// Socket setup & pass server
+// web socket setup
 var io = socket(server);
 io.on('connection', (socket) => {  
     console.log('made socket connection', socket.id);
@@ -131,13 +131,6 @@ client.on('connect', function () {
       }
     });
 
-    // listen for request to return "context" obj for testing
-    client.subscribe('testing/req', function (err) {
-      if (err) {
-        console.log(err);
-      }
-    });
-
   });
   
   client2.on('message', function (topic, message) {
@@ -175,10 +168,6 @@ client.on('connect', function () {
   client.on('message', function (topic, message) {
     message = JSON.parse(message.toString()); // message is Buffer
     switch(topic){
-      case 'testing/req':
-            console.log(message);
-            client.publish('testing/res', JSON.stringify(context));
-            break;
 
       case 'trigger': 
             context = new Object(); // create context for new bale
@@ -218,9 +207,14 @@ client.on('connect', function () {
             
       case 'drymatter':
               //console.log(message)
-              kosteus = message.dryMatter;
-              paino = message.weight;
-              io.sockets.emit('drymatter', message.toFixed(1));
+              if(context.timenow){
+                if (typeof context.dryMatter == 'undefined'){context.dryMatter = [];}
+                context.dryMatter.push(message.dryMatter);
+                if (typeof context.weight == 'undefined'){context.weight = [];}
+                context.weight.push(message.weight);
+              }
+
+              io.sockets.emit('drymatter', message.dryMatter.toFixed(1));
               //console.log(kosteus);
               //console.log(paino);
             break;
@@ -234,7 +228,7 @@ client.on('connect', function () {
                  DateTimeCreated: new Date(),
                  IsDeleted : false
               });
-              console.log(context);
+              //console.log(context);
             }
             io.sockets.emit('locationPath', message);
             var tractorData = {
@@ -256,10 +250,21 @@ client.on('connect', function () {
                 context = new Object();
                 timenow = new Date();
                 context.timenow = String(timenow.getTime());
+                context.arr = new Array([]); 
+                context.arr[0] = farmId + context.timenow;
                 console.log(context.timenow);
                 break;
             }
             //let DMWeight = volume*((3.5*(100-kosteus))+90);
+
+            // calculate avarage value of DM and weight
+            if (typeof context.dryMatter !== 'undefined') {
+              var dryMatter = context.dryMatter.reduce((a, b) => a + b, 0)/context.dryMatter.length;
+            } else {var dryMatter = 0;}
+            if (typeof context.weight !== 'undefined') {
+              var weight = context.weight.reduce((a, b) => a + b, 0)/context.weight.length;
+            } else {var weight = 0;}
+
             baleData = {
                 deviceId: "LittleBoy",
                 key: "eBmI9Cq1RbV3ISEeuJAUk+OtmimSj4fBdGyViSRkYJM=",
@@ -270,10 +275,9 @@ client.on('connect', function () {
                     externalHumidity: String(message.humid1.toFixed(1)),
                     internalTemperature: String(message.temp2.toFixed(2)),
                     internalHumidity: String(message.humid2.toFixed(2)),
-                    dryMatterValue: 35.6,
+                    dryMatterValue: dryMatter.toFixed(2),
                     FaultyCode: [100],
-                    baleWeight: 734,
-                    //DMWeight: String(DMWeight.toFixed(2)),
+                    baleWeight: weight.toFixed(0),
                     dateTimeAdded: new Date(),
                     IsFaulty: false,
                     harvestedLongitude : message.long, 
@@ -303,13 +307,12 @@ client.on('connect', function () {
               }
             });
             }});*/
-            console.log()
             totalBale++;
             baleData.data.totalBale = totalBale;
             io.sockets.emit('device-data', baleData);
             io.sockets.emit('noti', "Uploaded");
-            
-            //context = null;
+            console.log(baleData);
+
             context = new Object();
             timenow = new Date();
             context.timenow = String(timenow.getTime());

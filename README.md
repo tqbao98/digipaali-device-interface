@@ -1,87 +1,79 @@
-# Project Title
+# Digipaali device and interface
 
-One Paragraph of project description goes here
+Digipaali (2018-2020) is a public-funded project conducted by Häme University of Applied Sciences, and Natural Resources Institute Finland, in cooperation with Finnish innovative farms. The project aims to improve the efficiency of silage bale life-cycle management. This repository includes programs receiving and processing data from [Arduino](https://github.com/tqbao98/digipaali-arduino.git), and sending bales' data to IoT Hub. The code also hosts a local web application to control the device and display real-time measurements. 
 
-## Getting Started
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. 
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+## Prerequisites
 
-### Prerequisites
+* [NodeJS and npm](https://nodejs.org/en/)
+* [Data collecting device](https://github.com/tqbao98/digipaali-arduino.git)
 
-What things you need to install the software and how to install them
+## Installing
 
-```
-Give examples
-```
-
-### Installing
-
-A step by step series of examples that tell you how to get a development env running
-
-Say what the step will be
+Clone the repo or download zip file and extract it, in your desire folder:
 
 ```
-Give the example
+git clone https://github.com/tqbao98/digipaali-device.git
 ```
 
-And repeat
+Install potentially required packages:
 
 ```
-until finished
+npm install
 ```
+## Editing files to fit your setup
 
-End with an example of getting some data out of the system or using it for a little demo
-
-## Running the tests
-
-Explain how to run the automated tests for this system
-
-### Break down into end to end tests
-
-Explain what these tests test and why
+* In ```index.js```, edit path to static files. By default, it is ```'./public'```, which should work in most cases, but sometimes full path is required, e.g:
 
 ```
-Give an example
+var client  = mqtt.connect('/home/pi/digipaali-device/public');
 ```
 
-### And coding style tests
-
-Explain what these tests test and why
-
+* In ```index.js```, change url to your MQTT broker, e.g:
 ```
-Give an example
+var client  = mqtt.connect('http://localhost:1883')
 ```
 
-## Deployment
+* For Google map to work on web application, [create a Map Javascript API credential](https://developers.google.com/maps/documentation/javascript/get-api-key) and paste the key to ```/public/index.html``` file:
 
-Add additional notes about how to deploy this on a live system
+```
+ src="https://maps.googleapis.com/maps/api/js?key=YOUR-API-KEY&callback=initMap">
+```
 
-## Built With
+## Running
 
-* [Dropwizard](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
-* [Maven](https://maven.apache.org/) - Dependency Management
-* [ROME](https://rometools.github.io/rome/) - Used to generate RSS Feeds
+To run the program, in repository folder:
 
-## Contributing
+```
+ node index.js
+```
 
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
+Optionally, you can run the project with nodemon or pm2 for better project management.<br/> <br/>
+To run on nodemon, first install it:
 
-## Versioning
+```
+npm install -g nodemon
+```
 
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
+then: 
 
-## Authors
+```
+ nodemon index.js
+```
 
-* **Billie Thompson** - *Initial work* - [PurpleBooth](https://github.com/PurpleBooth)
+To run on pm2, first install it:
 
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
+```
+npm install pm2 -g
+```
+
+then: 
+
+```
+ pm2 index.js
+```
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
-
-## Acknowledgments
-
-* Hat tip to anyone whose code was used
-* Inspiration
-* etc
+This project is licensed under the MIT License - see the [LICENSE](LICENSE.md) file for details

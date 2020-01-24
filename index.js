@@ -1,15 +1,18 @@
-var express = require('express');
-var socket = require('socket.io');
-var mqtt = require('mqtt');
-var fs = require('fs');
+var express = require('express'); // hosts the web application
+var socket = require('socket.io'); // handles connection with web interface to display data
+var mqtt = require('mqtt'); // handles connection with other device (arduino) to receive data
+// var fs = require('fs'); // communicate with file system to store data locally
 
-//var client  = mqtt.connect('http://192.168.0.110:1883');
-var client2 = mqtt.connect('http://192.168.0.156:1883');
-//var client  = mqtt.connect('mqtts://iot.research.hamk.fi:8883');
-var client  = mqtt.connect('http://localhost:1883');
-// to start system automatically
+var client  = mqtt.connect('http://192.168.0.110:1883'); // connect to MQTT broker
+var client2 = mqtt.connect('http://192.168.0.156:1883'); // connect to Sampo reader broker
+
+// create a temporary object to store incoming data and signals
 var context = new Object();
+
+// farm ID, which will be prefix of bale ID for distinguishing purpose
 farmId = '002';
+
+// context.timenow is used as indicator for bale existence, if data comes or tags are found but context.timenow does not exist, they will be ignored
 timenow = new Date();
 context.timenow = String(timenow.getTime());
 
@@ -20,8 +23,8 @@ var DeviceClient = require('azure-iot-device').Client
 var AzureMessage = require('azure-iot-device').Message;
 var azureclient = DeviceClient.fromConnectionString(connectionString, Mqtt);*/
  
-var totalBale = 0; // total bale made in a day, reseted when prj reloaded
-var baleData; // obj to store data before send to server
+var totalBale = 0; // total bale made in a day, reseted when project is reloaded
+var baleData; // object to store data before send to server
 
 // App setup
 var app = express();
@@ -30,7 +33,7 @@ var server = app.listen(5000, function(){
 });
 
 // Static files
-app.use(express.static('./public')); // change to /home/pi/digipaali-device-interface/public
+app.use(express.static('./public'));
 
 // to check context obj via robotframework
 app.get('/test', (req, res) => {
@@ -91,6 +94,7 @@ function exceptionHandler(topic, data){
   io.sockets.emit('error-bale', baleData);
 }
 
+// connect to mqtt brokers, subscribe to topics
 client2.on('connect', function () {
   client2.subscribe('nurapisample/epc', function (err) {
     if (err) {
@@ -100,31 +104,35 @@ client2.on('connect', function () {
 });
 
 client.on('connect', function () {
+    // receive 'trigger' when a new bale is started
     client.subscribe('trigger', function (err) {
       if (err) {
         console.log(err);
       }
     });
 
+    // receive tag IDs
     client.subscribe('nurapisample/epc', function (err) {
       if (err) {
         console.log(err);
       }
     });
 
+    // receive data from arduino for processing, before sending to database
     client.subscribe('todatabase', function (err) {
       if (err) {
         console.log(err);
       }
     });
 
-    //update location and time
+    // this topic receives GPS of baler in an interval of time to update location
     client.subscribe('outTopic3', function (err) {
       if (err) {
         console.log(err);
       }
     });
 
+    // this topic receives drymatter (and weight) data from either sensor or canbus
     client.subscribe('drymatter', function (err) {
       if (err) {
         console.log(err);
@@ -133,24 +141,30 @@ client.on('connect', function () {
 
   });
   
+  // handles tag IDs from reader
   client2.on('message', function (topic, message) {
-    message = JSON.parse(message.toString());
+    message = JSON.parse(message.toString()); // parse msg from buffer to string to json object
     switch(topic){
         case 'nurapisample/epc':
-          if (!context.timenow){
+          if (!context.timenow){ // if context.timenow not exist, meaning no bale is in making, then ignore incoming tag ID
             break;}
-          if (!context.arr) {
+          if (!context.arr) { // context.arr is to store all tag IDs found when making a bale, because more than 1 tag may be on a bale
             context.arr = new Array();
-            context.arr[0] = farmId + context.timenow;
+            context.arr[0] = farmId + context.timenow; // the first element of array will be used as bale ID
           }
+
+          // loop to indicate whether incoming ID has been read and saved before or not, this is to prevent repeatition in array
           for (var j = 0; j <= context.arr.length; j++){ 
               if (context.arr[j] == message.id){
                   flag = true;
                   break;
               } else {flag = false;}
           }
-          if (!flag){
+          if (!flag){ // if incoming ID is new, it will be added to pushed to the array
             context.arr.push(message.id);
+            // following code is to write baleID to the tag of incoming ID, so that all tag of a bale will have similar ID, 
+            // however, if reader (e.g eNur) does not support needed Write function, this will not be used. In that case, tags will keep 
+            // their current ID, array of all found ID will be sent to server so that when a tag is read, it will be mapped with correponding baleID
             /*var msg = [];
             msg[0] = String(message.id);
             let length = message.id.length;
@@ -161,16 +175,17 @@ client.on('connect', function () {
             console.log(context.arr);
           }
           break;
-        default: break;
+        default: break; // ignores all other topics
         }
   });
 
+  // connects to arduino/microprocessor to get ambient, agricultural data
   client.on('message', function (topic, message) {
     message = JSON.parse(message.toString()); // message is Buffer
     switch(topic){
 
-      case 'trigger': 
-            context = new Object(); // create context for new bale
+      case 'trigger': // receive from canbus/sensor when a new bale is to be made
+            context = new Object(); // create temporary object to save data for new bale
             timenow = new Date(); // get timestamp for baleID
             context.timenow = String(timenow.getTime());
             console.log(timenow);
@@ -179,21 +194,26 @@ client.on('connect', function () {
             io.sockets.emit('noti', "New bale stamping started"); // notify to UI
             break;
       
-      case 'nurapisample/epc':
-            if (!context.timenow){ // only process tag ID if a bale is being made
+      case 'nurapisample/epc': // 
+            if (!context.timenow){ // if context.timenow not exist, meaning no bale is in making, then ignore incoming tag ID
               break;}
-            if (!context.arr) { // create new arr of IDs if there's not any
+            if (!context.arr) { // context.arr is to store all tag IDs found when making a bale, because more than 1 tag may be on a bale
               context.arr = new Array();
-              context.arr[0] = farmId + context.timenow;  
+              context.arr[0] = farmId + context.timenow;  // the first element of array will be used as bale ID
             } 
+
+            // loop to indicate whether incoming ID has been read and saved before or not, this is to prevent repeatition in array
             for (var j = 0; j <= context.arr.length; j++){ 
                 if (context.arr[j] == message.id){
                     flag = true;
                     break;
                 } else {flag = false;}
             }
-            if (!flag){
-              context.arr.push(message.id);
+            if (!flag){ // if incoming ID is new, it will be added to pushed to the array
+              context.arr.push(message.id); 
+              // following code is to write baleID to the tag of incoming ID, so that all tag of a bale will have similar ID, 
+              // however, if reader (e.g eNur) does not support needed Write function, this will not be used. In that case, tags will keep 
+              // their current ID, array of all found ID will be sent to server so that when a tag is read, it will be mapped with correponding baleID
               /*var msg = [];
               msg[0] = String(message.id);
               let length = message.id.length;
@@ -209,18 +229,15 @@ client.on('connect', function () {
               //console.log(message)
               if(context.timenow){
                 if (typeof context.dryMatter == 'undefined'){context.dryMatter = [];}
-                context.dryMatter.push(message.dryMatter);
+                context.dryMatter.push(message.dryMatter); // store instantaneous value of DM to calculate avarage value in the end 
                 if (typeof context.weight == 'undefined'){context.weight = [];}
-                context.weight.push(message.weight);
+                context.weight.push(message.weight); // to calculate weight value
               }
-
               io.sockets.emit('drymatter', message.dryMatter.toFixed(1));
-              //console.log(kosteus);
-              //console.log(paino);
             break;
 
-      case 'outTopic3':
-            if(context.timenow){
+      case 'outTopic3': // receive location data
+            if(context.timenow){ // store data to array only when it corresponds to a bale 
               if(!context.arr2){context.arr2 = [];}
               context.arr2.push({
                  Latitude : message.lat,
@@ -230,7 +247,11 @@ client.on('connect', function () {
               });
               //console.log(context);
             }
+
+            // send message to server to update baler location
             io.sockets.emit('locationPath', message);
+            
+            // message send to iothub must follow below structure with deviceId, key, protocol, data
             var tractorData = {
                 deviceId: "LittleBoy",
                 key: "eBmI9Cq1RbV3ISEeuJAUk+OtmimSj4fBdGyViSRkYJM=",
@@ -244,7 +265,7 @@ client.on('connect', function () {
             client.publish('tractor-data', JSON.stringify(tractorData));
             break;
       
-      case "todatabase":
+      case "todatabase": 
             //console.log(message)
             if (!context.arr){
                 context = new Object();
@@ -255,7 +276,7 @@ client.on('connect', function () {
                 console.log(context.timenow);
                 break;
             }
-            //let DMWeight = volume*((3.5*(100-kosteus))+90);
+            // let DMWeight = volume*((3.5*(100-kosteus))+90);
 
             // calculate avarage value of DM and weight
             if (typeof context.dryMatter !== 'undefined') {
@@ -265,6 +286,7 @@ client.on('connect', function () {
               var weight = context.weight.reduce((a, b) => a + b, 0)/context.weight.length;
             } else {var weight = 0;}
 
+            // fill incoming data to message to be sent to iothub
             baleData = {
                 deviceId: "LittleBoy",
                 key: "eBmI9Cq1RbV3ISEeuJAUk+OtmimSj4fBdGyViSRkYJM=",
@@ -273,17 +295,20 @@ client.on('connect', function () {
                     baleId : context.arr,
                     externalTemperature: String(message.temp1.toFixed(1)),
                     externalHumidity: String(message.humid1.toFixed(1)),
-                    internalTemperature: String(message.temp2.toFixed(2)),
-                    internalHumidity: String(message.humid2.toFixed(2)),
+                    //internalTemperature: String(message.temp2.toFixed(2)),
+                    //internalHumidity: String(message.humid2.toFixed(2)),
                     dryMatterValue: dryMatter.toFixed(2),
                     FaultyCode: [100],
                     baleWeight: weight.toFixed(0),
                     dateTimeAdded: new Date(),
                     IsFaulty: false,
+                    // final location of bale on field
                     harvestedLongitude : message.long, 
                     harvestedLatitude: message.lat,
+                    // the path where silage has been harvested
                     harvestedLocations : context.arr2,
                     timestamp: Date.now(),
+                    // time it took to make the bale
                     harvestIntervalTime : parseFloat(millisToMinutesAndSeconds(new Date() - context.timenow))
                 }
             };
@@ -307,12 +332,13 @@ client.on('connect', function () {
               }
             });
             }});*/
-            totalBale++;
+            totalBale++; // +1 to total amount of bales made
             baleData.data.totalBale = totalBale;
             io.sockets.emit('device-data', baleData);
             io.sockets.emit('noti', "Uploaded");
             console.log(baleData);
 
+            // start new new bale
             context = new Object();
             timenow = new Date();
             context.timenow = String(timenow.getTime());

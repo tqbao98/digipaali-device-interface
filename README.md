@@ -24,10 +24,10 @@ npm install
 ```
 ## Editing files to fit your setup
 
-* In ```index.js```, edit path to static files. By default, it is ```'./public'```, which should work in most cases, but sometimes full path is required, e.g:
+* In ```index.js```, edit path to static files. By default, it is './public', which should work in most cases, but sometimes full path is required, e.g:
 
 ```
-var client  = mqtt.connect('/home/pi/digipaali-device/public');
+app.use(express.static('/home/pi/digipaali-device/public'));
 ```
 
 * In ```index.js```, change url to your MQTT broker, e.g:

@@ -1,6 +1,6 @@
 # Digipaali device and interface
 
-Digipaali (2018-2020) is a public-funded project conducted by Häme University of Applied Sciences, and Natural Resources Institute Finland, in cooperation with Finnish innovative farms. The project aims to improve the efficiency of silage bale life-cycle management. This repository includes programs receiving and processing data from [Arduino](https://github.com/tqbao98/digipaali-arduino.git), and sending bales' data to IoT Hub. The code also hosts a local web application to control the device and display real-time measurements. 
+Digipaali (2018-2020) is a public-funded project conducted by Häme University of Applied Sciences, and Natural Resources Institute Finland, in cooperation with Finnish innovative farms. The project aims to improve the efficiency of silage bale life-cycle management. This repository includes programs receiving and processing data from Arduino/Wemos board, and sending bales' data to IoT Hub. The code also hosts a local web application to control the device and display real-time measurements. 
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. 
 
@@ -38,7 +38,7 @@ var client  = mqtt.connect('http://localhost:1883')
 * For Google map to work on web application, [create a Map Javascript API credential](https://developers.google.com/maps/documentation/javascript/get-api-key) and paste the key to ```/public/index.html``` file:
 
 ```
- src="https://maps.googleapis.com/maps/api/js?key=YOUR-API-KEY&callback=initMap">
+src="https://maps.googleapis.com/maps/api/js?key=YOUR-API-KEY&callback=initMap">
 ```
 
 ## Running
@@ -46,10 +46,10 @@ var client  = mqtt.connect('http://localhost:1883')
 To run the program, in repository folder:
 
 ```
- node index.js
+node index.js
 ```
 
-Optionally, you can run the project with nodemon or pm2 for better project management.<br/> <br/>
+Optionally, you can run the project with [nodemon](https://www.npmjs.com/package/nodemon) or [pm2](https://www.npmjs.com/package/pm2) for better project management.<br/> <br/>
 To run on nodemon, first install it:
 
 ```
@@ -59,7 +59,7 @@ npm install -g nodemon
 then: 
 
 ```
- nodemon index.js
+nodemon index.js
 ```
 
 To run on pm2, first install it:
@@ -71,7 +71,7 @@ npm install pm2 -g
 then: 
 
 ```
- pm2 index.js
+pm2 index.js
 ```
 
 ## License

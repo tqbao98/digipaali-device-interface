@@ -17,11 +17,12 @@ timenow = new Date();
 context.timenow = String(timenow.getTime());
 
 // create iothub device instance
-/*var connectionString = "HostName=DigiBaleDeviceHuB.azure-devices.net;DeviceId=LittleBoy;SharedAccessKey=eBmI9Cq1RbV3ISEeuJAUk+OtmimSj4fBdGyViSRkYJM=";
+var connectionString = "HostName=DigiBaleDeviceHuB.azure-devices.net;DeviceId=LittleBoy;SharedAccessKey=eBmI9Cq1RbV3ISEeuJAUk+OtmimSj4fBdGyViSRkYJM=";
 var Mqtt = require('azure-iot-device-mqtt').Mqtt;
 var DeviceClient = require('azure-iot-device').Client
 var AzureMessage = require('azure-iot-device').Message;
-var azureclient = DeviceClient.fromConnectionString(connectionString, Mqtt);*/
+var azureclient = DeviceClient.fromConnectionString(connectionString, Mqtt);
+
  
 var totalBale = 0; // total bale made in a day, reseted when project is reloaded
 var baleData; // object to store data before send to server
@@ -126,7 +127,7 @@ client.on('connect', function () {
     });
 
     // this topic receives GPS of baler in an interval of time to update location
-    client.subscribe('outTopic3', function (err) {
+    client.subscribe('path', function (err) {
       if (err) {
         console.log(err);
       }
@@ -236,7 +237,7 @@ client.on('connect', function () {
               io.sockets.emit('drymatter', message.dryMatter.toFixed(1));
             break;
 
-      case 'outTopic3': // receive location data
+      case 'path': // receive location data
             if(context.timenow){ // store data to array only when it corresponds to a bale 
               if(!context.arr2){context.arr2 = [];}
               context.arr2.push({
@@ -263,6 +264,25 @@ client.on('connect', function () {
                 }
             }
             client.publish('tractor-data', JSON.stringify(tractorData));
+            azureclient.open(function (err) {
+              if (err) {
+                console.error('Could not connect: ' + err.message);
+              } else {
+                console.log('Client connected');
+            
+                azureclient.on('error', function (err) {
+                  console.error(err.message);
+                  process.exit(-1);
+                });
+                var tractorMsg = new AzureMessage(JSON.stringify(tractorData.data));
+                azureclient.sendEvent(tractorMsg, function (err) {
+                  if (err) {
+                    console.error('send error: ' + err.toString());
+                  } else {
+                    console.log('message sent');
+                  }
+                });
+            }});
             break;
       
       case "todatabase": 
@@ -313,7 +333,7 @@ client.on('connect', function () {
                 }
             };
             client.publish('device-data', JSON.stringify(baleData));
-            /*azureclient.open(function (err) {
+            azureclient.open(function (err) {
               if (err) {
                 console.error('Could not connect: ' + err.message);
               } else {
@@ -323,15 +343,15 @@ client.on('connect', function () {
                   console.error(err.message);
                   process.exit(-1);
                 });
-            var azuremsg = new AzureMessage(JSON.stringify(baleData));
-            azureclient.sendEvent(azuremsg, function (err) {
-              if (err) {
-                console.error('send error: ' + err.toString());
-              } else {
-                console.log('message sent');
-              }
-            });
-            }});*/
+                var azuremsg = new AzureMessage(JSON.stringify(baleData.data));
+                azureclient.sendEvent(azuremsg, function (err) {
+                  if (err) {
+                    console.error('send error: ' + err.toString());
+                  } else {
+                    console.log('message sent');
+                  }
+                });
+            }});
             totalBale++; // +1 to total amount of bales made
             baleData.data.totalBale = totalBale;
             io.sockets.emit('device-data', baleData);
